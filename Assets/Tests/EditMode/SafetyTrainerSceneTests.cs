@@ -31,6 +31,26 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void ImportedArtDisplaysAreBoundIntoTheScene()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            AssertDisplayHasTexture("Checkpoint Desk Display");
+            AssertDisplayHasTexture("Checkpoint Poster Display");
+            AssertDisplayHasTexture("Work Zone Poster Display");
+            AssertDisplayHasTexture("Terminal Screen Display");
+            AssertDisplayHasTexture("PPE Helmet Placard Display");
+            AssertDisplayHasTexture("PPE Goggles Placard Display");
+            AssertDisplayHasTexture("PPE Gloves Placard Display");
+            AssertDisplayHasTexture("PPE Boots Placard Display");
+            AssertDisplayHasTexture("Hazard Reference Guardrail");
+            AssertDisplayHasTexture("Hazard Reference Oil Spill");
+            AssertDisplayHasTexture("Hazard Reference Hot Pipe");
+            AssertDisplayHasTexture("Hazard Reference Gas Warning");
+            AssertDisplayHasTexture("Hazard Reference Unsafe Valve");
+        }
+
+        [Test]
         public void PlayerStartHasClearSpaceInFrontOfView()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
@@ -174,6 +194,17 @@ namespace OilSafetyTrainer.Tests
                 preferredHeight,
                 rect.y + tolerance,
                 $"{objectName} cannot fit representative text. Preferred height {preferredHeight:F1} exceeds rect height {rect.y:F1}.");
+        }
+
+        private static void AssertDisplayHasTexture(string objectName)
+        {
+            var display = GameObject.Find(objectName);
+            Assert.NotNull(display, $"Missing display object: {objectName}");
+
+            var renderer = display.GetComponent<Renderer>();
+            Assert.NotNull(renderer, $"Display object has no renderer: {objectName}");
+            Assert.NotNull(renderer.sharedMaterial, $"Display object has no material: {objectName}");
+            Assert.NotNull(renderer.sharedMaterial.mainTexture, $"Display object has no texture assigned: {objectName}");
         }
     }
 }

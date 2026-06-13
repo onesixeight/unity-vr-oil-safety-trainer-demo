@@ -15,12 +15,29 @@ namespace OilSafetyTrainer.Editor
         private const string ScenePath = "Assets/Scenes/OilSafetyTrainerDemo.unity";
         private const string MaterialFolder = "Assets/Materials";
         private const string TextureFolder = "Assets/Textures/PolyHaven";
+        private const string ArtFolder = "Assets/Art";
+        private const string HazardArtFolder = ArtFolder + "/Hazards";
+        private const string PosterArtFolder = ArtFolder + "/UI/Posters";
+        private const string PpeArtFolder = ArtFolder + "/UI/PPE";
+        private const string TerminalArtFolder = ArtFolder + "/UI/Terminal";
         private const string ConcreteDiffusePath = TextureFolder + "/concrete_floor_02_diff_1k.jpg";
         private const string ConcreteNormalPath = TextureFolder + "/concrete_floor_02_nor_gl_1k.jpg";
         private const string AsphaltDiffusePath = TextureFolder + "/asphalt_floor_diff_1k.jpg";
         private const string AsphaltNormalPath = TextureFolder + "/asphalt_floor_nor_gl_1k.jpg";
         private const string SteelDiffusePath = TextureFolder + "/blue_metal_plate_diff_1k.jpg";
         private const string SteelNormalPath = TextureFolder + "/blue_metal_plate_nor_gl_1k.jpg";
+        private const string CheckpointPosterPath = PosterArtFolder + "/checkpoint_poster_bg.png";
+        private const string WorkZonePosterPath = PosterArtFolder + "/workzone_poster_bg.png";
+        private const string FinalTerminalPath = TerminalArtFolder + "/final_terminal_bg.png";
+        private const string PpeHelmetPath = PpeArtFolder + "/ppe_helmet.png";
+        private const string PpeGogglesPath = PpeArtFolder + "/ppe_goggles.png";
+        private const string PpeGlovesPath = PpeArtFolder + "/ppe_gloves.png";
+        private const string PpeBootsPath = PpeArtFolder + "/ppe_boots.png";
+        private const string HazardGuardrailPath = HazardArtFolder + "/hazard_guardrail_gap.png";
+        private const string HazardOilSpillPath = HazardArtFolder + "/hazard_oil_spill.png";
+        private const string HazardHotPipePath = HazardArtFolder + "/hazard_hot_pipe.png";
+        private const string HazardGasWarningPath = HazardArtFolder + "/hazard_gas_warning.png";
+        private const string HazardUnsafeValvePath = HazardArtFolder + "/hazard_unsafe_valve.png";
 
         [MenuItem("Oil Safety Trainer/Rebuild Demo Scene")]
         public static void BuildProject()
@@ -99,6 +116,8 @@ namespace OilSafetyTrainer.Editor
             CreateFinalStation(green, white, geometry);
             CreateGate(playerStart, transparentGate, geometry);
             CreateInstructionBoards(white, safetyYellow, geometry);
+            CreatePpePreviewPlacards(steel, white, geometry);
+            CreateHazardReferenceGallery(steel, geometry);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
@@ -149,6 +168,14 @@ namespace OilSafetyTrainer.Editor
             CreatePrimitive(PrimitiveType.Cube, "PPE Rack Top", new Vector3(0f, 1.55f, -8.4f), new Vector3(7.6f, 0.2f, 1.95f), accent, parent);
             CreatePrimitive(PrimitiveType.Cube, "Checkpoint Desk", new Vector3(5.8f, 0.7f, -6.4f), new Vector3(2.2f, 1.4f, 0.8f), steel, parent);
             CreatePrimitive(PrimitiveType.Cube, "Desk Monitor", new Vector3(5.8f, 1.45f, -6.75f), new Vector3(0.8f, 0.48f, 0.08f), white, parent);
+            CreateDisplayPanel(
+                "Checkpoint Desk Display",
+                "CheckpointDeskDisplay",
+                CheckpointPosterPath,
+                new Vector3(5.8f, 1.45f, -6.8f),
+                Quaternion.Euler(0f, 180f, 0f),
+                new Vector3(0.72f, 0.42f, 1f),
+                parent);
         }
 
         private static void CreateProcessEquipment(Material steel, Material pipeRed, Material warning, Material beacon, Transform parent)
@@ -279,6 +306,14 @@ namespace OilSafetyTrainer.Editor
             var terminal = CreatePrimitive(PrimitiveType.Cube, "Final Assessment Terminal", new Vector3(17f, 1f, 10f), new Vector3(1.2f, 2f, 0.7f), green, parent);
             terminal.AddComponent<FinalAssessmentStation>().ConfigureInteraction("Итоговая оценка", "Нажмите E", terminal.GetComponent<Renderer>());
             CreatePrimitive(PrimitiveType.Cube, "Terminal Screen", new Vector3(17f, 1.35f, 9.62f), new Vector3(0.85f, 0.55f, 0.05f), white, parent);
+            CreateDisplayPanel(
+                "Terminal Screen Display",
+                "TerminalScreenDisplay",
+                FinalTerminalPath,
+                new Vector3(17f, 1.35f, 9.58f),
+                Quaternion.Euler(0f, 180f, 0f),
+                new Vector3(0.76f, 0.46f, 1f),
+                parent);
         }
 
         private static void CreateGate(Transform returnPoint, Material material, Transform parent)
@@ -293,9 +328,43 @@ namespace OilSafetyTrainer.Editor
         {
             CreatePrimitive(PrimitiveType.Cube, "Board Checkpoint", new Vector3(-4.2f, 1.8f, -7.5f), new Vector3(0.1f, 2.2f, 3.4f), white, parent);
             CreatePrimitive(PrimitiveType.Cube, "Board Work Zone", new Vector3(18.8f, 1.8f, -1.8f), new Vector3(0.1f, 2.2f, 3.6f), yellow, parent);
+            CreateDisplayPanel(
+                "Checkpoint Poster Display",
+                "CheckpointPosterDisplay",
+                CheckpointPosterPath,
+                new Vector3(-4.13f, 1.8f, -7.5f),
+                Quaternion.Euler(0f, 90f, 0f),
+                new Vector3(2.8f, 1.75f, 1f),
+                parent);
+            CreateDisplayPanel(
+                "Work Zone Poster Display",
+                "WorkZonePosterDisplay",
+                WorkZonePosterPath,
+                new Vector3(18.73f, 1.8f, -1.8f),
+                Quaternion.Euler(0f, -90f, 0f),
+                new Vector3(3f, 1.75f, 1f),
+                parent);
             CreateWorldLabel("Board Checkpoint Text", "1. Наденьте все СИЗ\n2. Пройдите КПП", new Vector3(-4.08f, 2f, -7.5f), Quaternion.Euler(0f, 90f, 0f), 0.2f, Color.black, parent);
             CreateWorldLabel("Board Work Zone Text", "Найдите 5 опасностей\nи завершите обход", new Vector3(18.68f, 2f, -1.8f), Quaternion.Euler(0f, -90f, 0f), 0.2f, Color.black, parent);
             CreateWorldLabel("Final Station Label", "Терминал итоговой оценки", new Vector3(17f, 2.35f, 9.58f), Quaternion.identity, 0.16f, Color.black, parent);
+        }
+
+        private static void CreatePpePreviewPlacards(Material support, Material backing, Transform parent)
+        {
+            CreateReferencePlacard("PPE Helmet Placard", "PpeHelmetPlacard", PpeHelmetPath, new Vector3(-2.8f, 1.55f, -9.3f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.86f, 0.86f, 0.05f), support, backing, parent);
+            CreateReferencePlacard("PPE Goggles Placard", "PpeGogglesPlacard", PpeGogglesPath, new Vector3(-1f, 1.55f, -9.3f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.86f, 0.86f, 0.05f), support, backing, parent);
+            CreateReferencePlacard("PPE Gloves Placard", "PpeGlovesPlacard", PpeGlovesPath, new Vector3(0.8f, 1.55f, -9.3f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.86f, 0.86f, 0.05f), support, backing, parent);
+            CreateReferencePlacard("PPE Boots Placard", "PpeBootsPlacard", PpeBootsPath, new Vector3(2.6f, 1.55f, -9.3f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.86f, 0.86f, 0.05f), support, backing, parent);
+        }
+
+        private static void CreateHazardReferenceGallery(Material support, Transform parent)
+        {
+            CreatePrimitive(PrimitiveType.Cube, "Hazard Reference Wall", new Vector3(20.55f, 1.9f, 7.5f), new Vector3(0.1f, 2.4f, 9.4f), support, parent);
+            CreateDisplayPanel("Hazard Reference Guardrail", "HazardGuardrailReference", HazardGuardrailPath, new Vector3(20.48f, 2.45f, 10.8f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.3f, 0.74f, 1f), parent);
+            CreateDisplayPanel("Hazard Reference Oil Spill", "HazardOilSpillReference", HazardOilSpillPath, new Vector3(20.48f, 1.95f, 8.9f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.3f, 0.74f, 1f), parent);
+            CreateDisplayPanel("Hazard Reference Hot Pipe", "HazardHotPipeReference", HazardHotPipePath, new Vector3(20.48f, 1.45f, 7f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.3f, 0.74f, 1f), parent);
+            CreateDisplayPanel("Hazard Reference Gas Warning", "HazardGasWarningReference", HazardGasWarningPath, new Vector3(20.48f, 0.95f, 5.1f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.3f, 0.74f, 1f), parent);
+            CreateDisplayPanel("Hazard Reference Unsafe Valve", "HazardUnsafeValveReference", HazardUnsafeValvePath, new Vector3(20.48f, 0.45f, 3.2f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.3f, 0.74f, 1f), parent);
         }
 
         private static void CreatePlayer(Vector3 position, Quaternion rotation)
@@ -454,6 +523,54 @@ namespace OilSafetyTrainer.Editor
             textMesh.color = color;
         }
 
+        private static void CreateReferencePlacard(
+            string name,
+            string materialName,
+            string texturePath,
+            Vector3 position,
+            Quaternion rotation,
+            Vector3 backingScale,
+            Material support,
+            Material backing,
+            Transform parent)
+        {
+            CreatePrimitive(PrimitiveType.Cube, $"{name} Stand", position + new Vector3(0f, -0.6f, 0.02f), new Vector3(0.08f, 1.2f, 0.08f), support, parent);
+            CreatePrimitive(PrimitiveType.Cube, $"{name} Backing", position, backingScale, backing, parent);
+            CreateDisplayPanel($"{name} Display", materialName, texturePath, position + new Vector3(0f, 0f, -0.03f), rotation, new Vector3(backingScale.x * 0.92f, backingScale.y * 0.92f, 1f), parent);
+        }
+
+        private static void CreateDisplayPanel(string name, string materialName, string texturePath, Vector3 position, Quaternion rotation, Vector3 scale, Transform parent)
+        {
+            var material = CreateDisplayMaterial(materialName, texturePath);
+            if (material == null)
+            {
+                return;
+            }
+
+            CreateDisplayQuad(name, position, rotation, scale, material, parent);
+            CreateDisplayQuad($"{name} Backface", position, rotation * Quaternion.Euler(0f, 180f, 0f), scale, material, parent);
+        }
+
+        private static void CreateDisplayQuad(string name, Vector3 position, Quaternion rotation, Vector3 scale, Material material, Transform parent)
+        {
+            var display = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            display.name = name;
+            display.transform.SetParent(parent);
+            display.transform.SetPositionAndRotation(position, rotation);
+            display.transform.localScale = scale;
+
+            var collider = display.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Object.DestroyImmediate(collider);
+            }
+
+            var renderer = display.GetComponent<Renderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+        }
+
         private static GameObject CreatePrimitive(PrimitiveType type, string name, Vector3 position, Vector3 scale, Material material, Transform parent)
         {
             var gameObject = GameObject.CreatePrimitive(type);
@@ -542,6 +659,42 @@ namespace OilSafetyTrainer.Editor
             return material;
         }
 
+        private static Material CreateDisplayMaterial(string name, string texturePath)
+        {
+            if (string.IsNullOrWhiteSpace(texturePath))
+            {
+                return null;
+            }
+
+            var texture = LoadDisplayTexture(texturePath);
+            if (texture == null)
+            {
+                return null;
+            }
+
+            var path = $"{MaterialFolder}/{name}.mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            var shader = Shader.Find("Unlit/Transparent") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Texture");
+            if (material == null)
+            {
+                material = new Material(shader);
+                AssetDatabase.CreateAsset(material, path);
+            }
+            else if (material.shader != shader)
+            {
+                material.shader = shader;
+            }
+
+            material.mainTexture = texture;
+            if (material.HasProperty("_Color"))
+            {
+                material.color = Color.white;
+            }
+
+            EditorUtility.SetDirty(material);
+            return material;
+        }
+
         private static Texture2D LoadTexture(string path, bool normalMap)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -568,6 +721,39 @@ namespace OilSafetyTrainer.Editor
                 if (!normalMap && importer.textureType != TextureImporterType.Default)
                 {
                     importer.textureType = TextureImporterType.Default;
+                    dirty = true;
+                }
+
+                if (dirty)
+                {
+                    importer.SaveAndReimport();
+                }
+            }
+
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+
+        private static Texture2D LoadDisplayTexture(string path)
+        {
+            var texture = LoadTexture(path, false);
+            if (texture == null)
+            {
+                return null;
+            }
+
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer != null)
+            {
+                var dirty = false;
+                if (!importer.alphaIsTransparency)
+                {
+                    importer.alphaIsTransparency = true;
+                    dirty = true;
+                }
+
+                if (importer.wrapMode != TextureWrapMode.Clamp)
+                {
+                    importer.wrapMode = TextureWrapMode.Clamp;
                     dirty = true;
                 }
 

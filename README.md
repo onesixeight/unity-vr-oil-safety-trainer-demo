@@ -104,6 +104,6 @@ This repository is intentionally scoped as an MVP training simulator rather than
 ## Asset Notes
 
 - Environment visuals use Unity primitives, locally generated materials, and bundled local textures.
+- Integrated training visuals now include tracked poster, PPE, terminal, and hazard reference art under `Assets/Art/`, wired into the generated scene.
 - Source texture credits are retained in `Assets/Textures/PolyHaven/CREDITS.md`.
-- Experimental generated art used for exploration is intentionally not included in the tracked project state until integrated into the runtime scene or UI.
-
+- Local review drafts in `Assets/Review/` remain intentionally untracked so the repository only contains curated runtime assets.
