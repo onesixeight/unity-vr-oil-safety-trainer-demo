@@ -547,8 +547,11 @@ namespace OilSafetyTrainer.Editor
                 return;
             }
 
-            CreateDisplayQuad(name, position, rotation, scale, material, parent);
-            CreateDisplayQuad($"{name} Backface", position, rotation * Quaternion.Euler(0f, 180f, 0f), scale, material, parent);
+            // Unity's built-in Quad front face points along -Z. Our placement rotations
+            // were authored as if the front face pointed the opposite way, which made the
+            // mirrored "backface" quad the only readable surface from gameplay angles.
+            // Flip the authored rotation once and keep a single visible surface.
+            CreateDisplayQuad(name, position, rotation * Quaternion.Euler(0f, 180f, 0f), scale, material, parent);
         }
 
         private static void CreateDisplayQuad(string name, Vector3 position, Quaternion rotation, Vector3 scale, Material material, Transform parent)

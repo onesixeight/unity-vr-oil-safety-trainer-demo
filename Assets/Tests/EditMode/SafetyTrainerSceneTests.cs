@@ -48,6 +48,9 @@ namespace OilSafetyTrainer.Tests
             AssertDisplayHasTexture("Hazard Reference Hot Pipe");
             AssertDisplayHasTexture("Hazard Reference Gas Warning");
             AssertDisplayHasTexture("Hazard Reference Unsafe Valve");
+            Assert.IsNull(GameObject.Find("Checkpoint Poster Display Backface"));
+            Assert.IsNull(GameObject.Find("Work Zone Poster Display Backface"));
+            Assert.IsNull(GameObject.Find("Terminal Screen Display Backface"));
         }
 
         [Test]
