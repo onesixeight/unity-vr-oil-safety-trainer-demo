@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Text;
 
 namespace OilSafetyTrainer
 {
@@ -15,8 +16,8 @@ namespace OilSafetyTrainer
 
         public void ConfigureInteraction(string itemDisplayName, string prompt, Renderer renderer)
         {
-            displayName = itemDisplayName;
-            interactionPrompt = prompt;
+            displayName = NormalizeRussianText(itemDisplayName);
+            interactionPrompt = NormalizeRussianText(prompt);
             highlightRenderer = renderer;
         }
 
@@ -53,6 +54,27 @@ namespace OilSafetyTrainer
         protected static Material GetEditableMaterial(Renderer renderer)
         {
             return Application.isPlaying ? renderer.material : renderer.sharedMaterial;
+        }
+
+        protected static string NormalizeRussianText(string value)
+        {
+            if (string.IsNullOrEmpty(value) || (!value.Contains('Р') && !value.Contains('С')))
+            {
+                return value;
+            }
+
+            try
+            {
+                var bytes = Encoding.GetEncoding(1251).GetBytes(value);
+                var converted = Encoding.UTF8.GetString(bytes);
+                return string.IsNullOrWhiteSpace(converted) || converted.Contains('\uFFFD')
+                    ? value
+                    : converted;
+            }
+            catch
+            {
+                return value;
+            }
         }
     }
 }

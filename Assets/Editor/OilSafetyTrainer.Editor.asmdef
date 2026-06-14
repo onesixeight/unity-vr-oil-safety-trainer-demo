@@ -3,7 +3,8 @@
   "rootNamespace": "OilSafetyTrainer.Editor",
   "references": [
     "OilSafetyTrainer",
-    "UnityEngine.UI"
+    "UnityEngine.UI",
+    "Unity.InputSystem"
   ],
   "includePlatforms": [
     "Editor"

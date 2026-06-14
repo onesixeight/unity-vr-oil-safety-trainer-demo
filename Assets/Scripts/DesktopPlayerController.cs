@@ -15,7 +15,8 @@ namespace OilSafetyTrainer
         [SerializeField] private Camera viewCamera;
         [SerializeField] private float moveSpeed = 4.2f;
         [SerializeField] private float lookSensitivity = 0.12f;
-        [SerializeField] private float interactionDistance = 3.2f;
+        [SerializeField] private float interactionDistance = 5.5f;
+        [SerializeField] private float interactionRadius = 0.28f;
         [SerializeField] private LayerMask interactionMask = ~0;
 
         private CharacterController characterController;
@@ -149,7 +150,7 @@ namespace OilSafetyTrainer
                 return null;
             }
 
-            if (Physics.Raycast(origin.position, origin.forward, out var hit, interactionDistance, interactionMask, QueryTriggerInteraction.Collide))
+            if (Physics.SphereCast(origin.position, interactionRadius, origin.forward, out var hit, interactionDistance, interactionMask, QueryTriggerInteraction.Collide))
             {
                 return hit.collider.GetComponentInParent<InteractableItem>();
             }

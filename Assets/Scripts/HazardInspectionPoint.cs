@@ -6,7 +6,7 @@ namespace OilSafetyTrainer
     public sealed class HazardInspectionPoint : InteractableItem
     {
         [SerializeField] private string hazardId = "spill";
-        [SerializeField] private string hazardLabel = "разлив масла";
+        [SerializeField] private string hazardLabel = "Разлив масла";
         [TextArea]
         [SerializeField] private string recommendation = "Сообщите мастеру и оградите зону.";
         [SerializeField] private Renderer statusRenderer;
@@ -18,13 +18,13 @@ namespace OilSafetyTrainer
         public string HazardId => hazardId;
         public string HazardLabel => hazardLabel;
 
-        public void Configure(string id, string label, string mitigation, Renderer renderer, Color inspected)
+        public void Configure(string id, string label, string mitigation, Renderer renderer, Color inspectedStateColor)
         {
             hazardId = id;
-            hazardLabel = label;
-            recommendation = mitigation;
+            hazardLabel = NormalizeRussianText(label);
+            recommendation = NormalizeRussianText(mitigation);
             statusRenderer = renderer;
-            inspectedColor = inspected;
+            inspectedColor = inspectedStateColor;
         }
 
         private void Awake()

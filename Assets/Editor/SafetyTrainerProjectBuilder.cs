@@ -88,7 +88,7 @@ namespace OilSafetyTrainer.Editor
 
             var ui = CreateUi();
             var playerStart = new GameObject("Player Start").transform;
-            playerStart.SetPositionAndRotation(new Vector3(-3.5f, 0.05f, -10.8f), Quaternion.Euler(0f, 24f, 0f));
+            playerStart.SetPositionAndRotation(new Vector3(0.6f, 0.05f, -10.75f), Quaternion.Euler(0f, 12f, 0f));
 
             var managerObject = new GameObject("Safety Scenario Manager");
             var manager = managerObject.AddComponent<SafetyScenarioManager>();
@@ -111,18 +111,18 @@ namespace OilSafetyTrainer.Editor
             manager.playerStart = playerStart;
 
             CreatePlayer(playerStart.position, playerStart.rotation);
-            CreatePpeStations(safetyYellow, white, green, geometry);
-            CreateHazards(oilBlack, pipeRed, orange, blue, steel, geometry);
+            CreatePpeStationsWithImages(safetyYellow, white, green, geometry);
+            CreateHazardsWithImages(oilBlack, pipeRed, orange, blue, steel, geometry);
             CreateFinalStation(green, white, geometry);
             CreateGate(playerStart, transparentGate, geometry);
             CreateInstructionBoards(white, safetyYellow, geometry);
-            CreatePpePreviewPlacards(steel, white, geometry);
-            CreateHazardReferenceGallery(steel, geometry);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             PlayerSettings.productName = "Oil Safety Trainer VR Demo";
             PlayerSettings.companyName = "Codex Demo";
+            PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
+            PlayerSettings.defaultIsNativeResolution = true;
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.codexdemo.oilsafetytrainer");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -164,8 +164,8 @@ namespace OilSafetyTrainer.Editor
 
         private static void CreateCheckpointProps(Material steel, Material white, Material accent, Transform parent)
         {
-            CreatePrimitive(PrimitiveType.Cube, "PPE Rack Base", new Vector3(0f, 0.55f, -8.4f), new Vector3(7.5f, 1f, 1.9f), steel, parent);
-            CreatePrimitive(PrimitiveType.Cube, "PPE Rack Top", new Vector3(0f, 1.55f, -8.4f), new Vector3(7.6f, 0.2f, 1.95f), accent, parent);
+            CreatePrimitive(PrimitiveType.Cube, "PPE Rack Base", new Vector3(0f, 0.34f, -8.4f), new Vector3(7.5f, 0.58f, 1.9f), steel, parent);
+            CreatePrimitive(PrimitiveType.Cube, "PPE Rack Rear Rail", new Vector3(0f, 0.84f, -9.15f), new Vector3(7.3f, 0.08f, 0.28f), accent, parent);
             CreatePrimitive(PrimitiveType.Cube, "Checkpoint Desk", new Vector3(5.8f, 0.7f, -6.4f), new Vector3(2.2f, 1.4f, 0.8f), steel, parent);
             CreatePrimitive(PrimitiveType.Cube, "Desk Monitor", new Vector3(5.8f, 1.45f, -6.75f), new Vector3(0.8f, 0.48f, 0.08f), white, parent);
             CreateDisplayPanel(
@@ -301,6 +301,110 @@ namespace OilSafetyTrainer.Editor
             hazard.ConfigureInteraction(label, "Нажмите E", renderer);
         }
 
+        private static void CreatePpeStationsWithImages(Material yellow, Material white, Material selected, Transform parent)
+        {
+            CreatePpePlacard("PPE Helmet", "helmet", "РљР°СЃРєР°", PpeHelmetPath, new Vector3(-2.8f, 0.8f, -8.25f), yellow, selected, parent);
+            CreatePpePlacard("PPE Goggles", "goggles", "Р—Р°С‰РёС‚РЅС‹Рµ РѕС‡РєРё", PpeGogglesPath, new Vector3(-1f, 0.8f, -8.25f), white, selected, parent);
+            CreatePpePlacard("PPE Gloves", "gloves", "РџРµСЂС‡Р°С‚РєРё", PpeGlovesPath, new Vector3(0.8f, 0.8f, -8.25f), yellow, selected, parent);
+            CreatePpePlacard("PPE Boots", "boots", "Р”РёСЌР»РµРєС‚СЂРёС‡РµСЃРєРёРµ Р±РѕС‚РёРЅРєРё", PpeBootsPath, new Vector3(2.6f, 0.8f, -8.25f), white, selected, parent);
+        }
+
+        private static void CreatePpePlacard(string name, string id, string label, string texturePath, Vector3 position, Material material, Material selectedMaterial, Transform parent)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent);
+            root.transform.position = position;
+
+            CreatePrimitive(PrimitiveType.Cube, $"{name} Pedestal", position + new Vector3(0f, -0.58f, 0f), new Vector3(1.2f, 0.25f, 1.2f), material, parent);
+            var stand = CreatePrimitive(PrimitiveType.Cube, $"{name} Stand", position + new Vector3(0f, -0.12f, 0.08f), new Vector3(0.08f, 0.82f, 0.08f), material, parent);
+            stand.transform.SetParent(root.transform, true);
+            var board = CreatePrimitive(PrimitiveType.Cube, $"{name} Board", position + new Vector3(0f, 0.06f, 0f), new Vector3(0.74f, 0.74f, 0.06f), material, parent);
+            board.transform.SetParent(root.transform, true);
+            CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + new Vector3(0f, 0.06f, -0.08f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.62f, 0.62f, 1f), root.transform);
+            CreateInteractionProxy($"{name} Interaction Zone", position + new Vector3(0f, 0.06f, -0.12f), new Vector3(0.95f, 0.95f, 0.35f), root.transform);
+
+            var renderer = board.GetComponent<Renderer>();
+            var station = root.AddComponent<PpeStation>();
+            station.Configure(id, label, renderer, selectedMaterial.color);
+            station.ConfigureInteraction(label, "РќР°Р¶РјРёС‚Рµ E", renderer);
+        }
+
+        private static void CreateHazardsWithImages(Material oil, Material hot, Material warning, Material inspected, Material steel, Transform parent)
+        {
+            CreateHazardPlacard(
+                "Hazard Guardrail Gap",
+                "guardrail_gap",
+                "Р Р°Р·СЂС‹РІ РѕРіСЂР°Р¶РґРµРЅРёСЏ",
+                "РћСЃС‚Р°РЅРѕРІРёС‚РµСЃСЊ, РІС‹СЃС‚Р°РІСЊС‚Рµ РІСЂРµРјРµРЅРЅРѕРµ РѕРіСЂР°Р¶РґРµРЅРёРµ Рё СЃРѕРѕР±С‰РёС‚Рµ РѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕРјСѓ.",
+                HazardGuardrailPath,
+                new Vector3(6.2f, 1.1f, 11.85f),
+                Quaternion.Euler(0f, 180f, 0f),
+                warning,
+                inspected,
+                parent);
+
+            var spill = CreatePrimitive(PrimitiveType.Cube, "Oil Spill Visual", new Vector3(3.5f, 0.03f, 2.1f), new Vector3(2.4f, 0.02f, 1.6f), oil, parent);
+            spill.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
+            CreateDisplayPanel("Oil Spill Image", "HazardOilSpillSurface", HazardOilSpillPath, new Vector3(3.5f, 0.045f, 2.1f), Quaternion.Euler(90f, 25f, 0f), new Vector3(2.2f, 1.45f, 1f), spill.transform);
+            AddHazardComponent(spill, "oil_spill", "Р Р°Р·Р»РёРІ РЅРµС„С‚Рё/РјР°СЃР»Р°", "РћРіСЂР°РґРёС‚Рµ РјРµСЃС‚Рѕ, РёСЃРїРѕР»СЊР·СѓР№С‚Рµ СЃРѕСЂР±РµРЅС‚ Рё СЃРѕРѕР±С‰РёС‚Рµ Рѕ РїСЂРѕР»РёРІРµ.", inspected);
+
+            CreateHazardPlacard(
+                "Hazard Hot Pipe Marker",
+                "hot_pipe",
+                "Р“РѕСЂСЏС‡Р°СЏ РїРѕРІРµСЂС…РЅРѕСЃС‚СЊ С‚СЂСѓР±РѕРїСЂРѕРІРѕРґР°",
+                "РќРµ РєР°СЃР°Р№С‚РµСЃСЊ С‚СЂСѓР±С‹ Р±РµР· РґРѕРїСѓСЃРєР°, РїСЂРѕРІРµСЂСЊС‚Рµ С‚РµСЂРјРѕРёР·РѕР»СЏС†РёСЋ Рё РїСЂРµРґСѓРїСЂРµР¶РґР°СЋС‰РёРµ Р·РЅР°РєРё.",
+                HazardHotPipePath,
+                new Vector3(10f, 1.55f, 1.55f),
+                Quaternion.identity,
+                hot,
+                inspected,
+                parent);
+
+            CreateHazardPlacard(
+                "Hazard Gas Warning Beacon",
+                "gas_warning",
+                "РЎРёРіРЅР°Р» РіР°Р·РѕР°РЅР°Р»РёР·Р°С‚РѕСЂР°",
+                "РџРѕРєРёРЅСЊС‚Рµ РѕРїР°СЃРЅСѓСЋ Р·РѕРЅСѓ РїРѕ РІРµС‚СЂСѓ, РІРєР»СЋС‡РёС‚Рµ РѕРїРѕРІРµС‰РµРЅРёРµ Рё РґРµР№СЃС‚РІСѓР№С‚Рµ РїРѕ РїР»Р°РЅСѓ СЌРІР°РєСѓР°С†РёРё.",
+                HazardGasWarningPath,
+                new Vector3(15.2f, 1.2f, 3.75f),
+                Quaternion.Euler(0f, 180f, 0f),
+                warning,
+                inspected,
+                parent);
+
+            CreateHazardPlacard(
+                "Hazard Unsafe Valve Marker",
+                "unsafe_valve",
+                "РћС‚РєСЂС‹С‚С‹Р№/РЅРµРїСЂРѕРјР°СЂРєРёСЂРѕРІР°РЅРЅС‹Р№ РєР»Р°РїР°РЅ",
+                "РќРµ РїРµСЂРµРєР»СЋС‡Р°Р№С‚Рµ Р°СЂРјР°С‚СѓСЂСѓ Р±РµР· РЅР°СЂСЏРґР°, РїСЂРѕРІРµСЂСЊС‚Рµ Р±РёСЂРєСѓ LOTO Рё СЃС…РµРјСѓ С‚СЂСѓР±РѕРїСЂРѕРІРѕРґР°.",
+                HazardUnsafeValvePath,
+                new Vector3(13.9f, 1.2f, 8.35f),
+                Quaternion.Euler(0f, -90f, 0f),
+                warning,
+                inspected,
+                parent);
+
+            CreatePrimitive(PrimitiveType.Cube, "Temporary Missing Guardrail Visual", new Vector3(8.5f, 1.05f, 12.3f), new Vector3(2.2f, 0.18f, 0.18f), steel, parent);
+        }
+
+        private static void CreateHazardPlacard(string name, string id, string label, string mitigation, string texturePath, Vector3 position, Quaternion rotation, Material material, Material inspected, Transform parent)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent);
+            root.transform.SetPositionAndRotation(position, rotation);
+
+            var stand = CreatePrimitive(PrimitiveType.Cube, $"{name} Stand", position + rotation * new Vector3(0f, -0.55f, 0.04f), new Vector3(0.08f, 1.1f, 0.08f), material, parent);
+            stand.transform.SetParent(root.transform, true);
+            var board = CreatePrimitive(PrimitiveType.Cube, $"{name} Board", position, new Vector3(1.2f, 0.82f, 0.06f), material, parent);
+            board.transform.SetParent(root.transform, true);
+            CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + rotation * new Vector3(0f, 0f, -0.035f), rotation, new Vector3(1.08f, 0.68f, 1f), root.transform);
+
+            var renderer = board.GetComponent<Renderer>();
+            var hazard = root.AddComponent<HazardInspectionPoint>();
+            hazard.Configure(id, label, mitigation, renderer, inspected.color);
+            hazard.ConfigureInteraction(label, "РќР°Р¶РјРёС‚Рµ E", renderer);
+        }
+
         private static void CreateFinalStation(Material green, Material white, Transform parent)
         {
             var terminal = CreatePrimitive(PrimitiveType.Cube, "Final Assessment Terminal", new Vector3(17f, 1f, 10f), new Vector3(1.2f, 2f, 0.7f), green, parent);
@@ -344,8 +448,6 @@ namespace OilSafetyTrainer.Editor
                 Quaternion.Euler(0f, -90f, 0f),
                 new Vector3(3f, 1.75f, 1f),
                 parent);
-            CreateWorldLabel("Board Checkpoint Text", "1. Наденьте все СИЗ\n2. Пройдите КПП", new Vector3(-4.08f, 2f, -7.5f), Quaternion.Euler(0f, 90f, 0f), 0.2f, Color.black, parent);
-            CreateWorldLabel("Board Work Zone Text", "Найдите 5 опасностей\nи завершите обход", new Vector3(18.68f, 2f, -1.8f), Quaternion.Euler(0f, -90f, 0f), 0.2f, Color.black, parent);
             CreateWorldLabel("Final Station Label", "Терминал итоговой оценки", new Vector3(17f, 2.35f, 9.58f), Quaternion.identity, 0.16f, Color.black, parent);
         }
 
@@ -411,6 +513,7 @@ namespace OilSafetyTrainer.Editor
             var score = CreateText("Score", canvasObject.transform, font, string.Empty, 18, TextAnchor.UpperLeft, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(20f, 70f), new Vector2(360f, 42f), new Vector2(0f, 0f), true, 16, 18);
             var prompt = CreateText("Prompt", canvasObject.transform, font, string.Empty, 18, TextAnchor.LowerCenter, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 18f), new Vector2(1240f, 62f), new Vector2(0.5f, 0f), true, 15, 18);
             var message = CreateText("Message", canvasObject.transform, font, string.Empty, 18, TextAnchor.UpperRight, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -250f), new Vector2(580f, 170f), new Vector2(1f, 1f), true, 15, 18);
+            CreateText("Crosshair", canvasObject.transform, font, "+", 22, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(24f, 24f), new Vector2(0.5f, 0.5f), true, 18, 22);
 
             var guidePanel = CreatePanel("Guide Panel", canvasObject.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -20f), new Vector2(412f, 220f), new Color(0.02f, 0.06f, 0.08f, 0.82f), new Vector2(1f, 1f));
             var guideGroup = guidePanel.AddComponent<CanvasGroup>();
@@ -572,6 +675,17 @@ namespace OilSafetyTrainer.Editor
             renderer.sharedMaterial = material;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
+        }
+
+        private static void CreateInteractionProxy(string name, Vector3 position, Vector3 size, Transform parent)
+        {
+            var proxy = new GameObject(name);
+            proxy.transform.SetParent(parent);
+            proxy.transform.position = position;
+
+            var collider = proxy.AddComponent<BoxCollider>();
+            collider.size = size;
+            collider.isTrigger = false;
         }
 
         private static GameObject CreatePrimitive(PrimitiveType type, string name, Vector3 position, Vector3 scale, Material material, Transform parent)

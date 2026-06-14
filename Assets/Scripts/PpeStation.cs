@@ -6,7 +6,7 @@ namespace OilSafetyTrainer
     public sealed class PpeStation : InteractableItem
     {
         [SerializeField] private string ppeId = "helmet";
-        [SerializeField] private string ppeLabel = "каска";
+        [SerializeField] private string ppeLabel = "Каска";
         [SerializeField] private Renderer statusRenderer;
         [SerializeField] private Color selectedColor = new Color(0.2f, 0.85f, 0.35f);
 
@@ -19,7 +19,7 @@ namespace OilSafetyTrainer
         public void Configure(string id, string label, Renderer renderer, Color selected)
         {
             ppeId = id;
-            ppeLabel = label;
+            ppeLabel = NormalizeRussianText(label);
             statusRenderer = renderer;
             selectedColor = selected;
         }

@@ -59,6 +59,7 @@ namespace OilSafetyTrainer
 
         private void Start()
         {
+            EnforceFullscreenForDemoBuild();
             scorePanel?.HideFinal();
             scorePanel?.SetGuide(BuildGuideText());
             scorePanel?.ShowGuide();
@@ -267,6 +268,20 @@ namespace OilSafetyTrainer
             {
                 playerController.SetPaused(value);
             }
+        }
+
+        private static void EnforceFullscreenForDemoBuild()
+        {
+#if !UNITY_EDITOR
+            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            Screen.fullScreen = true;
+
+            var display = Display.main;
+            if (display != null && display.systemWidth > 0 && display.systemHeight > 0)
+            {
+                Screen.SetResolution(display.systemWidth, display.systemHeight, FullScreenMode.FullScreenWindow);
+            }
+#endif
         }
 
         private static void DefaultQuitRequestHandler()

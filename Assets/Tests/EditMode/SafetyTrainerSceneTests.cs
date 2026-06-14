@@ -39,18 +39,30 @@ namespace OilSafetyTrainer.Tests
             AssertDisplayHasTexture("Checkpoint Poster Display");
             AssertDisplayHasTexture("Work Zone Poster Display");
             AssertDisplayHasTexture("Terminal Screen Display");
-            AssertDisplayHasTexture("PPE Helmet Placard Display");
-            AssertDisplayHasTexture("PPE Goggles Placard Display");
-            AssertDisplayHasTexture("PPE Gloves Placard Display");
-            AssertDisplayHasTexture("PPE Boots Placard Display");
-            AssertDisplayHasTexture("Hazard Reference Guardrail");
-            AssertDisplayHasTexture("Hazard Reference Oil Spill");
-            AssertDisplayHasTexture("Hazard Reference Hot Pipe");
-            AssertDisplayHasTexture("Hazard Reference Gas Warning");
-            AssertDisplayHasTexture("Hazard Reference Unsafe Valve");
+            AssertDisplayHasTexture("PPE Helmet Image");
+            AssertDisplayHasTexture("PPE Goggles Image");
+            AssertDisplayHasTexture("PPE Gloves Image");
+            AssertDisplayHasTexture("PPE Boots Image");
+            AssertDisplayHasTexture("Hazard Guardrail Gap Image");
+            AssertDisplayHasTexture("Oil Spill Image");
+            AssertDisplayHasTexture("Hazard Hot Pipe Marker Image");
+            AssertDisplayHasTexture("Hazard Gas Warning Beacon Image");
+            AssertDisplayHasTexture("Hazard Unsafe Valve Marker Image");
             Assert.IsNull(GameObject.Find("Checkpoint Poster Display Backface"));
             Assert.IsNull(GameObject.Find("Work Zone Poster Display Backface"));
             Assert.IsNull(GameObject.Find("Terminal Screen Display Backface"));
+            Assert.IsNull(GameObject.Find("Hazard Reference Wall"));
+            Assert.IsNull(GameObject.Find("PPE Helmet Placard Display"));
+            Assert.IsNull(GameObject.Find("Board Checkpoint Text"));
+            Assert.IsNull(GameObject.Find("Board Work Zone Text"));
+            AssertPpeHasInteractionZone("PPE Helmet");
+            AssertPpeHasInteractionZone("PPE Goggles");
+            AssertPpeHasInteractionZone("PPE Gloves");
+            AssertPpeHasInteractionZone("PPE Boots");
+            Assert.IsNull(GameObject.Find("PPE Helmet Label"));
+            Assert.IsNull(GameObject.Find("PPE Goggles Label"));
+            Assert.IsNull(GameObject.Find("PPE Gloves Label"));
+            Assert.IsNull(GameObject.Find("PPE Boots Label"));
         }
 
         [Test]
@@ -61,16 +73,20 @@ namespace OilSafetyTrainer.Tests
             var rig = Object.FindAnyObjectByType<PlayerRig>();
             Assert.NotNull(rig);
 
-            var probeCenter = rig.Head.position + (rig.Head.forward * 0.9f);
-            var nearbyColliders = Physics.OverlapSphere(probeCenter, 0.45f, ~0, QueryTriggerInteraction.Ignore)
-                .Where(collider => !collider.transform.IsChildOf(rig.transform))
+            var viewCamera = Object.FindAnyObjectByType<Camera>();
+            Assert.NotNull(viewCamera);
+
+            var blockingHits = new[] { 0.22f, 0.5f, 0.78f }
+                .Select(viewportX => viewCamera.ViewportPointToRay(new Vector3(viewportX, 0.52f, 0f)))
+                .Select(ray => Physics.Raycast(ray, out var hit, 2.75f, ~0, QueryTriggerInteraction.Ignore) ? hit.collider : null)
+                .Where(collider => collider != null && !collider.transform.IsChildOf(rig.transform))
                 .Select(collider => collider.name)
                 .Distinct()
                 .ToArray();
 
             Assert.IsEmpty(
-                nearbyColliders,
-                $"Player start view is obstructed by nearby geometry: {string.Join(", ", nearbyColliders)}");
+                blockingHits,
+                $"Player start view is obstructed by nearby geometry: {string.Join(", ", blockingHits)}");
         }
 
         [Test]
@@ -208,6 +224,18 @@ namespace OilSafetyTrainer.Tests
             Assert.NotNull(renderer, $"Display object has no renderer: {objectName}");
             Assert.NotNull(renderer.sharedMaterial, $"Display object has no material: {objectName}");
             Assert.NotNull(renderer.sharedMaterial.mainTexture, $"Display object has no texture assigned: {objectName}");
+        }
+
+        private static void AssertPpeHasInteractionZone(string stationName)
+        {
+            var station = GameObject.Find(stationName);
+            Assert.NotNull(station, $"Missing PPE station: {stationName}");
+
+            var collider = station.GetComponentsInChildren<BoxCollider>()
+                .FirstOrDefault(item => item.name == $"{stationName} Interaction Zone");
+            Assert.NotNull(collider, $"Missing PPE interaction zone: {stationName}");
+            Assert.GreaterOrEqual(collider.size.x, 0.9f, $"{stationName} interaction zone is too narrow.");
+            Assert.GreaterOrEqual(collider.size.y, 0.9f, $"{stationName} interaction zone is too low.");
         }
     }
 }
