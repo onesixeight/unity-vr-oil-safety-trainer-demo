@@ -25,6 +25,7 @@ namespace OilSafetyTrainer
         public bool IsGuideVisible => guidePanel != null && guidePanel.alpha > 0.99f;
         public bool HasGuidePanel => guidePanel != null && guideText != null;
         public bool HasFinalActions => resetButton != null && quitButton != null;
+        public string FinalResultText => finalText != null ? finalText.text : string.Empty;
 
         public void Bind(
             Text objective,

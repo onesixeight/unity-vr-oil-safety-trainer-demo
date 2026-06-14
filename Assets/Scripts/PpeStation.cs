@@ -11,6 +11,7 @@ namespace OilSafetyTrainer
         [SerializeField] private Color selectedColor = new Color(0.2f, 0.85f, 0.35f);
 
         private Color initialColor;
+        private bool hasInitialColor;
         private bool equipped;
 
         public string PpeId => ppeId;
@@ -22,6 +23,9 @@ namespace OilSafetyTrainer
             ppeLabel = NormalizeRussianText(label);
             statusRenderer = renderer;
             selectedColor = selected;
+            EnsureInitialColor();
+            SetHighlightRenderer(statusRenderer);
+            SetStatusColor(initialColor);
         }
 
         private void Awake()
@@ -33,7 +37,9 @@ namespace OilSafetyTrainer
 
             if (statusRenderer != null)
             {
-                initialColor = GetEditableMaterial(statusRenderer).color;
+                EnsureInitialColor();
+                SetHighlightRenderer(statusRenderer);
+                SetStatusColor(equipped ? selectedColor : initialColor);
             }
         }
 
@@ -56,11 +62,28 @@ namespace OilSafetyTrainer
 
         public void SetEquipped(bool value)
         {
+            EnsureInitialColor();
             equipped = value;
             if (statusRenderer != null)
             {
-                GetEditableMaterial(statusRenderer).color = equipped ? selectedColor : initialColor;
+                SetStatusColor(equipped ? selectedColor : initialColor);
             }
+        }
+
+        private void EnsureInitialColor()
+        {
+            if (hasInitialColor)
+            {
+                return;
+            }
+
+            if (statusRenderer == null)
+            {
+                statusRenderer = GetComponentInChildren<Renderer>();
+            }
+
+            initialColor = ReadMaterialColor(statusRenderer);
+            hasInitialColor = true;
         }
     }
 }

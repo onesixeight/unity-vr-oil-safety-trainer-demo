@@ -10,8 +10,6 @@ namespace OilSafetyTrainer
     [RequireComponent(typeof(PlayerRig))]
     public sealed class DesktopPlayerController : MonoBehaviour
     {
-        private const string DefaultPrompt = "WASD - движение | Мышь - обзор | E - действие | H - памятка | R - сброс | Q - выход";
-
         [SerializeField] private Camera viewCamera;
         [SerializeField] private float moveSpeed = 4.2f;
         [SerializeField] private float lookSensitivity = 0.12f;
@@ -126,7 +124,7 @@ namespace OilSafetyTrainer
 
             var prompt = hoveredItem != null
                 ? hoveredItem.GetPrompt()
-                : DefaultPrompt;
+                : SafetyTrainerText.DefaultPrompt;
             SafetyScenarioManager.Instance?.SetInteractionPrompt(prompt);
         }
 

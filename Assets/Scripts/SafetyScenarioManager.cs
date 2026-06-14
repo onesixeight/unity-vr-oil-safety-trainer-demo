@@ -8,8 +8,6 @@ namespace OilSafetyTrainer
 {
     public sealed class SafetyScenarioManager : MonoBehaviour
     {
-        private const string DefaultPrompt = "WASD - движение | Мышь - обзор | E - действие | H - памятка | R - сброс | Q - выход";
-
         [Serializable]
         public struct PpeRequirement
         {
@@ -64,7 +62,7 @@ namespace OilSafetyTrainer
             scorePanel?.SetGuide(BuildGuideText());
             scorePanel?.ShowGuide();
             scorePanel?.BindActions(ResetScenario, QuitDemo);
-            SetInteractionPrompt(DefaultPrompt);
+            SetInteractionPrompt(SafetyTrainerText.DefaultPrompt);
             UpdateHud();
             scorePanel?.ShowMessage("Цель: наденьте СИЗ, пройдите КПП и найдите опасности на площадке.", 6f);
         }
@@ -166,7 +164,7 @@ namespace OilSafetyTrainer
             scorePanel?.HideFinal();
             scorePanel?.ShowGuide();
             SetPlayerPaused(false);
-            SetInteractionPrompt(DefaultPrompt);
+            SetInteractionPrompt(SafetyTrainerText.DefaultPrompt);
             scorePanel?.ShowMessage("Сценарий сброшен. Начните с выбора СИЗ.", 4f);
             UpdateHud();
         }

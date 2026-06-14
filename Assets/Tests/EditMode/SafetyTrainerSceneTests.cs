@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -63,6 +64,41 @@ namespace OilSafetyTrainer.Tests
             Assert.IsNull(GameObject.Find("PPE Goggles Label"));
             Assert.IsNull(GameObject.Find("PPE Gloves Label"));
             Assert.IsNull(GameObject.Find("PPE Boots Label"));
+        }
+
+        [Test]
+        public void SceneBuilderSourceDoesNotContainMojibakeRussianText()
+        {
+            var source = string.Join("\n", Directory
+                .GetFiles("Assets/Editor", "SafetyTrainer*.cs")
+                .Select(File.ReadAllText));
+            var mojibakeFragments = new[]
+            {
+                "РљР°СЃРєР°",
+                "РќР°Р¶РјРёС‚Рµ",
+                "Р Р°Р·Р»РёРІ",
+                "Р“РѕСЂСЏС‡Р°СЏ",
+                "РЎРёРіРЅР°Р»",
+                "РћС‚РєСЂС‹С‚С‹Р№"
+            };
+
+            foreach (var fragment in mojibakeFragments)
+            {
+                Assert.False(source.Contains(fragment), $"Builder source still contains mojibake text: {fragment}");
+            }
+        }
+
+        [Test]
+        public void PpePlacardBuilderDoesNotOverridePassedPosition()
+        {
+            var source = string.Join("\n", Directory
+                .GetFiles("Assets/Editor", "SafetyTrainer*.cs")
+                .Select(File.ReadAllText));
+
+            StringAssert.DoesNotContain(
+                "position = new Vector3(position.x",
+                source,
+                "CreatePpePlacard should use explicit caller-provided coordinates instead of overriding y/z internally.");
         }
 
         [Test]
@@ -169,7 +205,7 @@ namespace OilSafetyTrainer.Tests
                 "СИЗ перед входом:\n[x] Каска\n[x] Защитные очки\n[x] Перчатки\n[x] Диэлектрические ботинки\n\n" +
                 "Опасности на площадке:\n[x] Разрыв ограждения\n[x] Разлив нефти/масла\n[x] Горячая поверхность трубопровода\n[x] Сигнал газоанализатора\n[x] Открытый/непромаркированный клапан");
             AssertTextFits("Score", "Текущая оценка: 100/100");
-            AssertTextFits("Prompt", "WASD - движение | Мышь - обзор | E - действие | H - памятка | R - сброс | Q - выход");
+            AssertTextFits("Prompt", SafetyTrainerText.DefaultPrompt);
             AssertTextFits("Message", "Опасность выявлена: Горячая поверхность трубопровода. Оградите зону и дождитесь охлаждения оборудования.");
             AssertTextFits("Guide Text",
                 "1. Наденьте 4 обязательных СИЗ у КПП.\n2. Пройдите рамку допуска в рабочую зону.\n" +

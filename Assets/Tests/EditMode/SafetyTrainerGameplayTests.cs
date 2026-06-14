@@ -1,8 +1,8 @@
 using System.Reflection;
+using System.Linq;
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace OilSafetyTrainer.Tests
 {
@@ -41,11 +41,8 @@ namespace OilSafetyTrainer.Tests
             Assert.NotNull(scorePanel);
             Assert.True(scorePanel.IsFinalVisible);
 
-            var finalText = (Text)typeof(ScorePanelController)
-                .GetField("finalText", BindingFlags.Instance | BindingFlags.NonPublic)
-                .GetValue(scorePanel);
-            StringAssert.Contains("100/100", finalText.text);
-            StringAssert.Contains("зачёт", finalText.text);
+            StringAssert.Contains("100/100", scorePanel.FinalResultText);
+            StringAssert.Contains("зачёт", scorePanel.FinalResultText);
         }
 
         [Test]
@@ -82,6 +79,40 @@ namespace OilSafetyTrainer.Tests
             Assert.That(Quaternion.Angle(Quaternion.identity, playerRig.Head.localRotation), Is.LessThan(0.1f));
         }
 
+        [Test]
+        public void EquippedPpeKeepsSelectedColorAfterHoverEnds()
+        {
+            LoadInitializedScenario();
+            var playerRig = Object.FindAnyObjectByType<PlayerRig>();
+            var station = Object.FindObjectsByType<PpeStation>(FindObjectsInactive.Exclude)
+                .First(item => item.PpeId == "gloves");
+            var renderer = GetBoardRenderer(station.gameObject);
+
+            station.SetHighlighted(true);
+            station.Interact(playerRig);
+
+            station.SetHighlighted(false);
+
+            AssertColorApproximately(new Color(0.1f, 0.6f, 0.24f), GetRenderedColor(renderer), "Equipped PPE lost its selected color after hover ended.");
+        }
+
+        [Test]
+        public void InspectedHazardKeepsInspectedColorAfterHoverEnds()
+        {
+            LoadInitializedScenario();
+            var playerRig = Object.FindAnyObjectByType<PlayerRig>();
+            var hazard = Object.FindObjectsByType<HazardInspectionPoint>(FindObjectsInactive.Exclude)
+                .First(item => item.HazardId == "hot_pipe");
+            var renderer = GetBoardRenderer(hazard.gameObject);
+
+            hazard.SetHighlighted(true);
+            hazard.Interact(playerRig);
+
+            hazard.SetHighlighted(false);
+
+            AssertColorApproximately(new Color(0.1f, 0.5f, 0.95f), GetRenderedColor(renderer), "Inspected hazard lost its status color after hover ended.");
+        }
+
         private static SafetyScenarioManager LoadInitializedScenario()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
@@ -99,6 +130,30 @@ namespace OilSafetyTrainer.Tests
             var method = behaviour.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.NotNull(method, $"Could not find lifecycle method {methodName} on {behaviour.GetType().Name}.");
             method.Invoke(behaviour, null);
+        }
+
+        private static Renderer GetBoardRenderer(GameObject item)
+        {
+            var renderer = item.GetComponentsInChildren<Renderer>()
+                .FirstOrDefault(candidate => candidate.name.EndsWith("Board"));
+            Assert.NotNull(renderer, $"Could not find board renderer under {item.name}.");
+            return renderer;
+        }
+
+        private static void AssertColorApproximately(Color expected, Color actual, string message)
+        {
+            Assert.That(actual.r, Is.EqualTo(expected.r).Within(0.002f), message);
+            Assert.That(actual.g, Is.EqualTo(expected.g).Within(0.002f), message);
+            Assert.That(actual.b, Is.EqualTo(expected.b).Within(0.002f), message);
+            Assert.That(actual.a, Is.EqualTo(expected.a).Within(0.002f), message);
+        }
+
+        private static Color GetRenderedColor(Renderer renderer)
+        {
+            var block = new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(block);
+            var blockColor = block.GetColor("_Color");
+            return blockColor.a > 0f ? blockColor : renderer.sharedMaterial.color;
         }
     }
 }

@@ -13,6 +13,7 @@ namespace OilSafetyTrainer
         [SerializeField] private Color inspectedColor = new Color(0.25f, 0.7f, 1f);
 
         private Color initialColor;
+        private bool hasInitialColor;
         private bool inspected;
 
         public string HazardId => hazardId;
@@ -25,6 +26,9 @@ namespace OilSafetyTrainer
             recommendation = NormalizeRussianText(mitigation);
             statusRenderer = renderer;
             inspectedColor = inspectedStateColor;
+            EnsureInitialColor();
+            SetHighlightRenderer(statusRenderer);
+            SetStatusColor(initialColor);
         }
 
         private void Awake()
@@ -36,7 +40,9 @@ namespace OilSafetyTrainer
 
             if (statusRenderer != null)
             {
-                initialColor = GetEditableMaterial(statusRenderer).color;
+                EnsureInitialColor();
+                SetHighlightRenderer(statusRenderer);
+                SetStatusColor(inspected ? inspectedColor : initialColor);
             }
         }
 
@@ -59,11 +65,28 @@ namespace OilSafetyTrainer
 
         public void SetInspected(bool value)
         {
+            EnsureInitialColor();
             inspected = value;
             if (statusRenderer != null)
             {
-                GetEditableMaterial(statusRenderer).color = inspected ? inspectedColor : initialColor;
+                SetStatusColor(inspected ? inspectedColor : initialColor);
             }
+        }
+
+        private void EnsureInitialColor()
+        {
+            if (hasInitialColor)
+            {
+                return;
+            }
+
+            if (statusRenderer == null)
+            {
+                statusRenderer = GetComponentInChildren<Renderer>();
+            }
+
+            initialColor = ReadMaterialColor(statusRenderer);
+            hasInitialColor = true;
         }
     }
 }
