@@ -26,6 +26,17 @@ namespace OilSafetyTrainer
 
             transform.SetPositionAndRotation(position, rotation);
 
+            if (head != null && head != transform)
+            {
+                head.localRotation = Quaternion.identity;
+            }
+
+            var desktopController = GetComponent<DesktopPlayerController>();
+            if (desktopController != null)
+            {
+                desktopController.ResetViewPitch();
+            }
+
             if (characterController != null)
             {
                 characterController.enabled = true;

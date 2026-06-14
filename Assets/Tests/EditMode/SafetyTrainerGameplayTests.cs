@@ -68,6 +68,20 @@ namespace OilSafetyTrainer.Tests
             Assert.AreEqual(100, manager.State.CalculateScore());
         }
 
+        [Test]
+        public void ResetScenarioRestoresPlayerViewPitch()
+        {
+            var manager = LoadInitializedScenario();
+            var playerRig = Object.FindAnyObjectByType<PlayerRig>();
+            Assert.NotNull(playerRig);
+
+            playerRig.Head.localRotation = Quaternion.Euler(65f, 0f, 0f);
+
+            manager.ResetScenario();
+
+            Assert.That(Quaternion.Angle(Quaternion.identity, playerRig.Head.localRotation), Is.LessThan(0.1f));
+        }
+
         private static SafetyScenarioManager LoadInitializedScenario()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");

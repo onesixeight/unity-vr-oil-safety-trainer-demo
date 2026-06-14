@@ -142,6 +142,17 @@ namespace OilSafetyTrainer
             ApplyCursorState();
         }
 
+        public void ResetViewPitch()
+        {
+            if (viewCamera != null)
+            {
+                viewCamera.transform.localRotation = Quaternion.identity;
+            }
+
+            cameraPitch = 0f;
+            suppressLookFrames = 2;
+        }
+
         private InteractableItem FindLookedAtItem()
         {
             var origin = playerRig.InteractionOrigin;

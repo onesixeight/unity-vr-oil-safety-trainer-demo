@@ -311,17 +311,19 @@ namespace OilSafetyTrainer.Editor
 
         private static void CreatePpePlacard(string name, string id, string label, string texturePath, Vector3 position, Material material, Material selectedMaterial, Transform parent)
         {
+            position = new Vector3(position.x, 1.02f, -7.35f);
+
             var root = new GameObject(name);
             root.transform.SetParent(parent);
             root.transform.position = position;
 
-            CreatePrimitive(PrimitiveType.Cube, $"{name} Pedestal", position + new Vector3(0f, -0.58f, 0f), new Vector3(1.2f, 0.25f, 1.2f), material, parent);
-            var stand = CreatePrimitive(PrimitiveType.Cube, $"{name} Stand", position + new Vector3(0f, -0.12f, 0.08f), new Vector3(0.08f, 0.82f, 0.08f), material, parent);
+            CreatePrimitive(PrimitiveType.Cube, $"{name} Pedestal", position + new Vector3(0f, -0.62f, 0f), new Vector3(1.05f, 0.18f, 0.7f), material, parent);
+            var stand = CreatePrimitive(PrimitiveType.Cube, $"{name} Stand", position + new Vector3(0f, -0.2f, 0.12f), new Vector3(0.07f, 0.72f, 0.07f), material, parent);
             stand.transform.SetParent(root.transform, true);
-            var board = CreatePrimitive(PrimitiveType.Cube, $"{name} Board", position + new Vector3(0f, 0.06f, 0f), new Vector3(0.74f, 0.74f, 0.06f), material, parent);
+            var board = CreatePrimitive(PrimitiveType.Cube, $"{name} Board", position + new Vector3(0f, 0.06f, 0f), new Vector3(0.72f, 0.72f, 0.05f), material, parent);
             board.transform.SetParent(root.transform, true);
-            CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + new Vector3(0f, 0.06f, -0.08f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.62f, 0.62f, 1f), root.transform);
-            CreateInteractionProxy($"{name} Interaction Zone", position + new Vector3(0f, 0.06f, -0.12f), new Vector3(0.95f, 0.95f, 0.35f), root.transform);
+            CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + new Vector3(0f, 0.06f, -0.075f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.64f, 0.64f, 1f), root.transform);
+            CreateInteractionProxy($"{name} Interaction Zone", position + new Vector3(0f, 0.06f, -0.12f), new Vector3(0.92f, 0.92f, 0.28f), root.transform);
 
             var renderer = board.GetComponent<Renderer>();
             var station = root.AddComponent<PpeStation>();
@@ -345,7 +347,12 @@ namespace OilSafetyTrainer.Editor
 
             var spill = CreatePrimitive(PrimitiveType.Cube, "Oil Spill Visual", new Vector3(3.5f, 0.03f, 2.1f), new Vector3(2.4f, 0.02f, 1.6f), oil, parent);
             spill.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
-            CreateDisplayPanel("Oil Spill Image", "HazardOilSpillSurface", HazardOilSpillPath, new Vector3(3.5f, 0.045f, 2.1f), Quaternion.Euler(90f, 25f, 0f), new Vector3(2.2f, 1.45f, 1f), spill.transform);
+            var spillDisplayMaterial = CreateDisplayMaterial("HazardOilSpillSurface", HazardOilSpillPath);
+            if (spillDisplayMaterial != null)
+            {
+                spill.GetComponent<Renderer>().sharedMaterial = spillDisplayMaterial;
+            }
+            CreateDisplayPanelRaw("Oil Spill Image", "HazardOilSpillSurface", HazardOilSpillPath, new Vector3(3.5f, 0.07f, 2.1f), Quaternion.Euler(90f, 25f, 0f), new Vector3(2.25f, 1.5f, 1f), spill.transform);
             AddHazardComponent(spill, "oil_spill", "Р Р°Р·Р»РёРІ РЅРµС„С‚Рё/РјР°СЃР»Р°", "РћРіСЂР°РґРёС‚Рµ РјРµСЃС‚Рѕ, РёСЃРїРѕР»СЊР·СѓР№С‚Рµ СЃРѕСЂР±РµРЅС‚ Рё СЃРѕРѕР±С‰РёС‚Рµ Рѕ РїСЂРѕР»РёРІРµ.", inspected);
 
             CreateHazardPlacard(
@@ -394,10 +401,13 @@ namespace OilSafetyTrainer.Editor
             root.transform.SetPositionAndRotation(position, rotation);
 
             var stand = CreatePrimitive(PrimitiveType.Cube, $"{name} Stand", position + rotation * new Vector3(0f, -0.55f, 0.04f), new Vector3(0.08f, 1.1f, 0.08f), material, parent);
+            stand.transform.rotation = rotation;
             stand.transform.SetParent(root.transform, true);
             var board = CreatePrimitive(PrimitiveType.Cube, $"{name} Board", position, new Vector3(1.2f, 0.82f, 0.06f), material, parent);
+            board.transform.rotation = rotation;
             board.transform.SetParent(root.transform, true);
-            CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + rotation * new Vector3(0f, 0f, -0.035f), rotation, new Vector3(1.08f, 0.68f, 1f), root.transform);
+            CreateDisplayPanelRaw($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + rotation * new Vector3(0f, 0f, -0.08f), rotation, new Vector3(1.08f, 0.68f, 1f), root.transform);
+            CreateInteractionProxy($"{name} Interaction Zone", position + rotation * new Vector3(0f, 0f, -0.14f), new Vector3(1.35f, 0.96f, 0.35f), root.transform);
 
             var renderer = board.GetComponent<Renderer>();
             var hazard = root.AddComponent<HazardInspectionPoint>();
@@ -655,6 +665,17 @@ namespace OilSafetyTrainer.Editor
             // mirrored "backface" quad the only readable surface from gameplay angles.
             // Flip the authored rotation once and keep a single visible surface.
             CreateDisplayQuad(name, position, rotation * Quaternion.Euler(0f, 180f, 0f), scale, material, parent);
+        }
+
+        private static void CreateDisplayPanelRaw(string name, string materialName, string texturePath, Vector3 position, Quaternion rotation, Vector3 scale, Transform parent)
+        {
+            var material = CreateDisplayMaterial(materialName, texturePath);
+            if (material == null)
+            {
+                return;
+            }
+
+            CreateDisplayQuad(name, position, rotation, scale, material, parent);
         }
 
         private static void CreateDisplayQuad(string name, Vector3 position, Quaternion rotation, Vector3 scale, Material material, Transform parent)
