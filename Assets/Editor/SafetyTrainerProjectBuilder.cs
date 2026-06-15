@@ -48,6 +48,7 @@ namespace OilSafetyTrainer.Editor
             PlayerSettings.companyName = "Codex Demo";
             PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
             PlayerSettings.defaultIsNativeResolution = true;
+            PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.codexdemo.oilsafetytrainer");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

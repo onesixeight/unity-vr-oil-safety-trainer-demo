@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.IO;
 using System.Linq;
@@ -179,6 +180,12 @@ namespace OilSafetyTrainer.Tests
 
             StringAssert.DoesNotContain("FindObjectsByType", source);
             StringAssert.DoesNotContain("FindAnyObjectByType", source);
+        }
+
+        [Test]
+        public void ProjectUsesLinearColorSpaceForLighting()
+        {
+            Assert.AreEqual(ColorSpace.Linear, PlayerSettings.colorSpace);
         }
 
         [Test]
