@@ -2,6 +2,7 @@ using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -136,20 +137,20 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
-        public void SceneBuilderSourceDoesNotContainMojibakeRussianText()
+        public void RuntimeAndBuilderSourceDoNotContainMojibakeRussianText()
         {
             var source = string.Join("\n", Directory
-                .GetFiles("Assets/Editor", "SafetyTrainer*.cs")
+                .GetFiles("Assets", "*.cs", SearchOption.AllDirectories)
                 .Select(File.ReadAllText));
             var mojibakeFragments = new[]
             {
-                "РљР°СЃРєР°",
-                "РќР°Р¶РјРёС‚Рµ",
-                "Р Р°Р·Р»РёРІ",
-                "Р“РѕСЂСЏС‡Р°СЏ",
-                "РЎРёРіРЅР°Р»",
-                "РћС‚РєСЂС‹С‚С‹Р№"
-            };
+                "Каска",
+                "Нажмите",
+                "Разлив",
+                "Горячая",
+                "Сигнал",
+                "Открытый"
+            }.Select(ToWindows1251Mojibake);
 
             foreach (var fragment in mojibakeFragments)
             {
@@ -168,6 +169,25 @@ namespace OilSafetyTrainer.Tests
                 "position = new Vector3(position.x",
                 source,
                 "CreatePpePlacard should use explicit caller-provided coordinates instead of overriding y/z internally.");
+        }
+
+        [Test]
+        public void ScenarioManagerDoesNotSearchWholeSceneDuringRuntimeOperations()
+        {
+            var source = File.ReadAllText("Assets/Scripts/SafetyScenarioManager.cs");
+
+            StringAssert.DoesNotContain("FindObjectsByType", source);
+            StringAssert.DoesNotContain("FindAnyObjectByType", source);
+        }
+
+        [Test]
+        public void InteractableSourceDoesNotRepairRussianTextAtRuntime()
+        {
+            var source = string.Join("\n", Directory
+                .GetFiles("Assets/Scripts", "*.cs")
+                .Select(File.ReadAllText));
+
+            StringAssert.DoesNotContain("NormalizeRussianText", source);
         }
 
         [Test]
@@ -315,6 +335,11 @@ namespace OilSafetyTrainer.Tests
                 preferredHeight,
                 rect.y + tolerance,
                 $"{objectName} cannot fit representative text. Preferred height {preferredHeight:F1} exceeds rect height {rect.y:F1}.");
+        }
+
+        private static string ToWindows1251Mojibake(string value)
+        {
+            return Encoding.GetEncoding(1251).GetString(Encoding.UTF8.GetBytes(value));
         }
 
         private static void AssertDisplayHasTexture(string objectName)

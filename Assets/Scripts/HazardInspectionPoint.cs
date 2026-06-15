@@ -22,8 +22,8 @@ namespace OilSafetyTrainer
         public void Configure(string id, string label, string mitigation, Renderer renderer, Color inspectedStateColor)
         {
             hazardId = id;
-            hazardLabel = NormalizeRussianText(label);
-            recommendation = NormalizeRussianText(mitigation);
+            hazardLabel = label;
+            recommendation = mitigation;
             statusRenderer = renderer;
             inspectedColor = inspectedStateColor;
             EnsureInitialColor();
@@ -60,7 +60,7 @@ namespace OilSafetyTrainer
             }
 
             var changed = manager.InspectHazard(hazardId, hazardLabel, recommendation);
-            SetInspected(inspected || changed || manager.State.InspectedHazards.Contains(hazardId));
+            SetInspected(changed || manager.State.InspectedHazards.Contains(hazardId));
         }
 
         public void SetInspected(bool value)

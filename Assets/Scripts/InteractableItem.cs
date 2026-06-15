@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Text;
 
 namespace OilSafetyTrainer
 {
@@ -18,8 +17,8 @@ namespace OilSafetyTrainer
 
         public void ConfigureInteraction(string itemDisplayName, string prompt, Renderer renderer)
         {
-            displayName = NormalizeRussianText(itemDisplayName);
-            interactionPrompt = NormalizeRussianText(prompt);
+            displayName = itemDisplayName;
+            interactionPrompt = prompt;
             highlightRenderer = renderer;
             CaptureStatusColorIfNeeded();
             ApplyVisualColor();
@@ -96,27 +95,6 @@ namespace OilSafetyTrainer
             highlightRenderer.GetPropertyBlock(propertyBlock);
             propertyBlock.SetColor("_Color", color);
             highlightRenderer.SetPropertyBlock(propertyBlock);
-        }
-
-        protected static string NormalizeRussianText(string value)
-        {
-            if (string.IsNullOrEmpty(value) || (!value.Contains('Р') && !value.Contains('С')))
-            {
-                return value;
-            }
-
-            try
-            {
-                var bytes = Encoding.GetEncoding(1251).GetBytes(value);
-                var converted = Encoding.UTF8.GetString(bytes);
-                return string.IsNullOrWhiteSpace(converted) || converted.Contains('\uFFFD')
-                    ? value
-                    : converted;
-            }
-            catch
-            {
-                return value;
-            }
         }
     }
 }

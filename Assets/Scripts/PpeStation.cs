@@ -20,7 +20,7 @@ namespace OilSafetyTrainer
         public void Configure(string id, string label, Renderer renderer, Color selected)
         {
             ppeId = id;
-            ppeLabel = NormalizeRussianText(label);
+            ppeLabel = label;
             statusRenderer = renderer;
             selectedColor = selected;
             EnsureInitialColor();
@@ -57,7 +57,7 @@ namespace OilSafetyTrainer
             }
 
             var changed = manager.EquipPpe(ppeId, ppeLabel);
-            SetEquipped(equipped || changed || manager.State.EquippedPpe.Contains(ppeId));
+            SetEquipped(changed || manager.State.EquippedPpe.Contains(ppeId));
         }
 
         public void SetEquipped(bool value)

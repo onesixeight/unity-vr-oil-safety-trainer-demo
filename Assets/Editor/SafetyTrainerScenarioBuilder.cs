@@ -36,7 +36,7 @@ namespace OilSafetyTrainer.Editor
             return manager;
         }
 
-        public static void CreatePlayer(Vector3 position, Quaternion rotation)
+        public static PlayerRig CreatePlayer(Vector3 position, Quaternion rotation, out DesktopPlayerController desktopController)
         {
             var player = new GameObject("Desktop PlayerRig");
             player.transform.SetPositionAndRotation(position, rotation);
@@ -45,7 +45,7 @@ namespace OilSafetyTrainer.Editor
             controller.radius = 0.32f;
             controller.center = new Vector3(0f, 0.9f, 0f);
             var rig = player.AddComponent<PlayerRig>();
-            player.AddComponent<DesktopPlayerController>();
+            desktopController = player.AddComponent<DesktopPlayerController>();
 
             var cameraObject = new GameObject("Player Camera");
             cameraObject.transform.SetParent(player.transform);
@@ -57,19 +57,23 @@ namespace OilSafetyTrainer.Editor
             camera.fieldOfView = 70f;
             cameraObject.AddComponent<AudioListener>();
             rig.Configure(cameraObject.transform, cameraObject.transform);
+            return rig;
         }
 
-        public static void CreatePpeStations(SafetyTrainerMaterialSet materials, Transform parent)
+        public static PpeStation[] CreatePpeStations(SafetyTrainerMaterialSet materials, Transform parent)
         {
-            CreatePpePlacard("PPE Helmet", "helmet", "Каска", SafetyTrainerPaths.PpeHelmetPath, new Vector3(-2.8f, 1.02f, -7.35f), materials.SafetyYellow, materials.SafeGreen, parent);
-            CreatePpePlacard("PPE Goggles", "goggles", "Защитные очки", SafetyTrainerPaths.PpeGogglesPath, new Vector3(-1f, 1.02f, -7.35f), materials.White, materials.SafeGreen, parent);
-            CreatePpePlacard("PPE Gloves", "gloves", "Перчатки", SafetyTrainerPaths.PpeGlovesPath, new Vector3(0.8f, 1.02f, -7.35f), materials.SafetyYellow, materials.SafeGreen, parent);
-            CreatePpePlacard("PPE Boots", "boots", "Диэлектрические ботинки", SafetyTrainerPaths.PpeBootsPath, new Vector3(2.6f, 1.02f, -7.35f), materials.White, materials.SafeGreen, parent);
+            return new[]
+            {
+                CreatePpePlacard("PPE Helmet", "helmet", "Каска", SafetyTrainerPaths.PpeHelmetPath, new Vector3(-2.8f, 1.02f, -7.35f), materials.SafetyYellow, materials.SafeGreen, parent),
+                CreatePpePlacard("PPE Goggles", "goggles", "Защитные очки", SafetyTrainerPaths.PpeGogglesPath, new Vector3(-1f, 1.02f, -7.35f), materials.White, materials.SafeGreen, parent),
+                CreatePpePlacard("PPE Gloves", "gloves", "Перчатки", SafetyTrainerPaths.PpeGlovesPath, new Vector3(0.8f, 1.02f, -7.35f), materials.SafetyYellow, materials.SafeGreen, parent),
+                CreatePpePlacard("PPE Boots", "boots", "Диэлектрические ботинки", SafetyTrainerPaths.PpeBootsPath, new Vector3(2.6f, 1.02f, -7.35f), materials.White, materials.SafeGreen, parent)
+            };
         }
 
-        public static void CreateHazards(SafetyTrainerMaterialSet materials, Transform parent)
+        public static HazardInspectionPoint[] CreateHazards(SafetyTrainerMaterialSet materials, Transform parent)
         {
-            CreateHazardPlacard(
+            var guardrailGap = CreateHazardPlacard(
                 "Hazard Guardrail Gap",
                 "guardrail_gap",
                 "Разрыв ограждения",
@@ -90,9 +94,9 @@ namespace OilSafetyTrainer.Editor
             }
 
             SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Oil Spill Image", "HazardOilSpillSurface", SafetyTrainerPaths.HazardOilSpillPath, new Vector3(3.5f, 0.07f, 2.1f), Quaternion.Euler(90f, 25f, 0f), new Vector3(2.25f, 1.5f, 1f), spill.transform, false);
-            ConfigureHazard(spill, "oil_spill", "Разлив нефти/масла", "Оградите место, используйте сорбент и сообщите о проливе.", materials.InspectionBlue);
+            var oilSpill = ConfigureHazard(spill, "oil_spill", "Разлив нефти/масла", "Оградите место, используйте сорбент и сообщите о проливе.", materials.InspectionBlue);
 
-            CreateHazardPlacard(
+            var hotPipe = CreateHazardPlacard(
                 "Hazard Hot Pipe Marker",
                 "hot_pipe",
                 "Горячая поверхность трубопровода",
@@ -104,7 +108,7 @@ namespace OilSafetyTrainer.Editor
                 materials.InspectionBlue,
                 parent);
 
-            CreateHazardPlacard(
+            var gasWarning = CreateHazardPlacard(
                 "Hazard Gas Warning Beacon",
                 "gas_warning",
                 "Сигнал газоанализатора",
@@ -116,7 +120,7 @@ namespace OilSafetyTrainer.Editor
                 materials.InspectionBlue,
                 parent);
 
-            CreateHazardPlacard(
+            var unsafeValve = CreateHazardPlacard(
                 "Hazard Unsafe Valve Marker",
                 "unsafe_valve",
                 "Открытый/непромаркированный клапан",
@@ -129,6 +133,7 @@ namespace OilSafetyTrainer.Editor
                 parent);
 
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Temporary Missing Guardrail Visual", new Vector3(8.5f, 1.05f, 12.3f), new Vector3(2.2f, 0.18f, 0.18f), materials.Steel, parent);
+            return new[] { guardrailGap, oilSpill, hotPipe, gasWarning, unsafeValve };
         }
 
         public static void CreateFinalStation(SafetyTrainerMaterialSet materials, Transform parent)
@@ -154,7 +159,7 @@ namespace OilSafetyTrainer.Editor
             Object.DestroyImmediate(visual.GetComponent<Collider>());
         }
 
-        private static void CreatePpePlacard(string name, string id, string label, string texturePath, Vector3 position, Material material, Material selectedMaterial, Transform parent)
+        private static PpeStation CreatePpePlacard(string name, string id, string label, string texturePath, Vector3 position, Material material, Material selectedMaterial, Transform parent)
         {
             var root = new GameObject(name);
             root.transform.SetParent(parent);
@@ -173,9 +178,10 @@ namespace OilSafetyTrainer.Editor
             var station = root.AddComponent<PpeStation>();
             station.Configure(id, label, renderer, selectedMaterial.color);
             station.ConfigureInteraction(label, "Нажмите E", renderer);
+            return station;
         }
 
-        private static void CreateHazardPlacard(string name, string id, string label, string mitigation, string texturePath, Vector3 position, Quaternion rotation, Material material, Material inspected, Transform parent)
+        private static HazardInspectionPoint CreateHazardPlacard(string name, string id, string label, string mitigation, string texturePath, Vector3 position, Quaternion rotation, Material material, Material inspected, Transform parent)
         {
             var root = new GameObject(name);
             root.transform.SetParent(parent);
@@ -190,15 +196,16 @@ namespace OilSafetyTrainer.Editor
             SafetyTrainerPrimitiveFactory.CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + rotation * new Vector3(0f, 0f, -0.11f), rotation, new Vector3(1.08f, 0.68f, 1f), root.transform, false);
             SafetyTrainerPrimitiveFactory.CreateInteractionProxy($"{name} Interaction Zone", position + rotation * new Vector3(0f, 0f, -0.18f), rotation, new Vector3(1.35f, 0.96f, 0.35f), root.transform);
 
-            ConfigureHazard(root, id, label, mitigation, inspected, board.GetComponent<Renderer>());
+            return ConfigureHazard(root, id, label, mitigation, inspected, board.GetComponent<Renderer>());
         }
 
-        private static void ConfigureHazard(GameObject marker, string id, string label, string mitigation, Material inspected, Renderer statusRenderer = null)
+        private static HazardInspectionPoint ConfigureHazard(GameObject marker, string id, string label, string mitigation, Material inspected, Renderer statusRenderer = null)
         {
             var renderer = statusRenderer != null ? statusRenderer : marker.GetComponentInChildren<Renderer>();
             var hazard = marker.AddComponent<HazardInspectionPoint>();
             hazard.Configure(id, label, mitigation, renderer, inspected.color);
             hazard.ConfigureInteraction(label, "Нажмите E", renderer);
+            return hazard;
         }
     }
 }

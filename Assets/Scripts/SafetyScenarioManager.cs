@@ -36,12 +36,30 @@ namespace OilSafetyTrainer
         public ScorePanelController scorePanel;
         public Transform playerStart;
 
+        [Header("Runtime References")]
+        [SerializeField] private PpeStation[] ppeStations = Array.Empty<PpeStation>();
+        [SerializeField] private HazardInspectionPoint[] hazardPoints = Array.Empty<HazardInspectionPoint>();
+        [SerializeField] private PlayerRig playerRig;
+        [SerializeField] private DesktopPlayerController desktopPlayerController;
+
         private SafetyScenarioState state;
         private Dictionary<string, string> ppeLabels;
         private Dictionary<string, string> hazardLabels;
         private bool workZoneEntered;
 
         public SafetyScenarioState State => state;
+
+        public void ConfigureRuntimeReferences(
+            PpeStation[] stations,
+            HazardInspectionPoint[] points,
+            PlayerRig player,
+            DesktopPlayerController playerController)
+        {
+            ppeStations = stations ?? Array.Empty<PpeStation>();
+            hazardPoints = points ?? Array.Empty<HazardInspectionPoint>();
+            playerRig = player;
+            desktopPlayerController = playerController;
+        }
 
         private void Awake()
         {
@@ -157,20 +175,25 @@ namespace OilSafetyTrainer
             state.Reset();
             workZoneEntered = false;
 
-            foreach (var station in FindObjectsByType<PpeStation>(FindObjectsInactive.Exclude))
+            foreach (var station in ppeStations)
             {
-                station.SetEquipped(false);
+                if (station != null)
+                {
+                    station.SetEquipped(false);
+                }
             }
 
-            foreach (var hazard in FindObjectsByType<HazardInspectionPoint>(FindObjectsInactive.Exclude))
+            foreach (var hazard in hazardPoints)
             {
-                hazard.SetInspected(false);
+                if (hazard != null)
+                {
+                    hazard.SetInspected(false);
+                }
             }
 
-            var player = FindAnyObjectByType<PlayerRig>();
-            if (player != null && playerStart != null)
+            if (playerRig != null && playerStart != null)
             {
-                player.TeleportTo(playerStart.position, playerStart.rotation);
+                playerRig.TeleportTo(playerStart.position, playerStart.rotation);
             }
 
             scorePanel?.HideFinal();
@@ -260,10 +283,9 @@ namespace OilSafetyTrainer
 
         private void SetPlayerPaused(bool value)
         {
-            var playerController = FindAnyObjectByType<DesktopPlayerController>();
-            if (playerController != null)
+            if (desktopPlayerController != null)
             {
-                playerController.SetPaused(value);
+                desktopPlayerController.SetPaused(value);
             }
         }
 

@@ -113,6 +113,44 @@ namespace OilSafetyTrainer.Tests
             AssertColorApproximately(new Color(0.1f, 0.5f, 0.95f), GetRenderedColor(renderer), "Inspected hazard lost its status color after hover ended.");
         }
 
+        [Test]
+        public void RepeatingPpeInteractionDoesNotChangeProgressOrScore()
+        {
+            var manager = LoadInitializedScenario();
+            var playerRig = Object.FindAnyObjectByType<PlayerRig>();
+            var station = Object.FindObjectsByType<PpeStation>(FindObjectsInactive.Exclude)
+                .First(item => item.PpeId == "helmet");
+
+            station.Interact(playerRig);
+            var scoreAfterFirstInteraction = manager.State.CalculateScore();
+            var equippedAfterFirstInteraction = manager.State.EquippedPpe.Count;
+
+            station.Interact(playerRig);
+
+            Assert.AreEqual(scoreAfterFirstInteraction, manager.State.CalculateScore());
+            Assert.AreEqual(equippedAfterFirstInteraction, manager.State.EquippedPpe.Count);
+            Assert.True(manager.State.EquippedPpe.Contains("helmet"));
+        }
+
+        [Test]
+        public void RepeatingHazardInteractionDoesNotDoubleCountProgressOrPenalty()
+        {
+            var manager = LoadInitializedScenario();
+            var playerRig = Object.FindAnyObjectByType<PlayerRig>();
+            var hazard = Object.FindObjectsByType<HazardInspectionPoint>(FindObjectsInactive.Exclude)
+                .First(item => item.HazardId == "oil_spill");
+
+            hazard.Interact(playerRig);
+            var scoreAfterFirstInteraction = manager.State.CalculateScore(includeRemainingHazardPenalty: true);
+            var inspectedAfterFirstInteraction = manager.State.InspectedHazardCount;
+
+            hazard.Interact(playerRig);
+
+            Assert.AreEqual(scoreAfterFirstInteraction, manager.State.CalculateScore(includeRemainingHazardPenalty: true));
+            Assert.AreEqual(inspectedAfterFirstInteraction, manager.State.InspectedHazardCount);
+            Assert.True(manager.State.InspectedHazards.Contains("oil_spill"));
+        }
+
         private static SafetyScenarioManager LoadInitializedScenario()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
