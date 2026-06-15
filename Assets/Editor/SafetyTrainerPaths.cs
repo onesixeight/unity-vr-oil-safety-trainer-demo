@@ -5,6 +5,8 @@ namespace OilSafetyTrainer.Editor
     internal static class SafetyTrainerPaths
     {
         public const string ScenePath = "Assets/Scenes/OilSafetyTrainerDemo.unity";
+        public const string ScenarioFolder = "Assets/Scenarios";
+        public const string ScenarioConfigPath = ScenarioFolder + "/OilSafetyTrainerScenario.asset";
         public const string MaterialFolder = "Assets/Materials";
         public const string TextureFolder = "Assets/Textures/PolyHaven";
         public const string ArtFolder = "Assets/Art";
@@ -38,6 +40,7 @@ namespace OilSafetyTrainer.Editor
         public static void EnsureFolders()
         {
             Directory.CreateDirectory("Assets/Scenes");
+            Directory.CreateDirectory(ScenarioFolder);
             Directory.CreateDirectory(MaterialFolder);
             Directory.CreateDirectory(TextureFolder);
         }

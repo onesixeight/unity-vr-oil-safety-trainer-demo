@@ -189,6 +189,28 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void GeneratedSceneUsesScenarioConfigAsset()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            var config = AssetDatabase.LoadAssetAtPath<ScriptableObject>("Assets/Scenarios/OilSafetyTrainerScenario.asset");
+            Assert.NotNull(config, "Generated scenario data should live in a ScriptableObject asset.");
+
+            var serializedConfig = new SerializedObject(config);
+            Assert.AreEqual(4, serializedConfig.FindProperty("requiredPpe").arraySize);
+            Assert.AreEqual(5, serializedConfig.FindProperty("hazards").arraySize);
+            Assert.AreEqual(100, serializedConfig.FindProperty("baseScore").intValue);
+
+            var manager = Object.FindAnyObjectByType<SafetyScenarioManager>();
+            Assert.NotNull(manager);
+
+            var serializedManager = new SerializedObject(manager);
+            var configProperty = serializedManager.FindProperty("scenarioConfig");
+            Assert.NotNull(configProperty, "SafetyScenarioManager should expose a serialized scenarioConfig field.");
+            Assert.AreSame(config, configProperty.objectReferenceValue);
+        }
+
+        [Test]
         public void InteractableSourceDoesNotRepairRussianTextAtRuntime()
         {
             var source = string.Join("\n", Directory

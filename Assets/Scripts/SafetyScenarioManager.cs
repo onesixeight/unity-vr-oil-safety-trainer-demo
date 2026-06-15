@@ -26,6 +26,7 @@ namespace OilSafetyTrainer
         public static Action QuitRequestHandler = DefaultQuitRequestHandler;
 
         [Header("Scenario")]
+        [SerializeField] private SafetyScenarioConfig scenarioConfig;
         public PpeRequirement[] requiredPpe = Array.Empty<PpeRequirement>();
         public HazardRequirement[] hazards = Array.Empty<HazardRequirement>();
         public int baseScore = 100;
@@ -48,6 +49,13 @@ namespace OilSafetyTrainer
         private bool workZoneEntered;
 
         public SafetyScenarioState State => state;
+        public SafetyScenarioConfig ScenarioConfig => scenarioConfig;
+
+        public void ConfigureScenario(SafetyScenarioConfig config)
+        {
+            scenarioConfig = config;
+            ApplyScenarioConfig();
+        }
 
         public void ConfigureRuntimeReferences(
             PpeStation[] stations,
@@ -222,6 +230,7 @@ namespace OilSafetyTrainer
 
         private void BuildState()
         {
+            ApplyScenarioConfig();
             ppeLabels = requiredPpe
                 .Where(item => !string.IsNullOrWhiteSpace(item.id))
                 .GroupBy(item => item.id, StringComparer.OrdinalIgnoreCase)
@@ -236,6 +245,24 @@ namespace OilSafetyTrainer
                 baseScore,
                 missingPpePenalty,
                 uninspectedHazardPenalty);
+        }
+
+        private void ApplyScenarioConfig()
+        {
+            if (scenarioConfig == null)
+            {
+                return;
+            }
+
+            requiredPpe = scenarioConfig.RequiredPpe
+                .Select(item => new PpeRequirement { id = item.id, label = item.label })
+                .ToArray();
+            hazards = scenarioConfig.Hazards
+                .Select(item => new HazardRequirement { id = item.id, label = item.label })
+                .ToArray();
+            baseScore = scenarioConfig.BaseScore;
+            missingPpePenalty = scenarioConfig.MissingPpePenalty;
+            uninspectedHazardPenalty = scenarioConfig.UninspectedHazardPenalty;
         }
 
         private void UpdateHud()
