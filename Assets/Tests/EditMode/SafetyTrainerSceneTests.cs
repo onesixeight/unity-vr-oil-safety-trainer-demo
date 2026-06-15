@@ -235,6 +235,43 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void SecondaryMaintenanceScenarioConfigHasDedicatedInstructionText()
+        {
+            var builderType = System.Type.GetType("OilSafetyTrainer.Editor.SafetyTrainerScenarioBuilder, OilSafetyTrainer.Editor");
+            Assert.NotNull(builderType, "Could not find SafetyTrainerScenarioBuilder editor type.");
+            var createScenarioConfig = builderType.GetMethod("CreateMaintenanceScenarioConfig");
+            Assert.NotNull(createScenarioConfig, "Could not find maintenance scenario config factory.");
+
+            var config = (SafetyScenarioConfig)createScenarioConfig.Invoke(null, null);
+            Assert.NotNull(config);
+
+            var serializedConfig = new SerializedObject(config);
+            Assert.AreEqual("Техническое обслуживание насосного блока", serializedConfig.FindProperty("scenarioName").stringValue);
+            StringAssert.Contains("насосного блока", serializedConfig.FindProperty("objectiveText").stringValue);
+            StringAssert.Contains("3 опасности", serializedConfig.FindProperty("guideText").stringValue);
+            Assert.AreEqual(4, serializedConfig.FindProperty("requiredPpe").arraySize);
+            Assert.AreEqual(3, serializedConfig.FindProperty("hazards").arraySize);
+            Assert.AreEqual(100, serializedConfig.FindProperty("baseScore").intValue);
+            Assert.AreEqual(10, serializedConfig.FindProperty("uninspectedHazardPenalty").intValue);
+        }
+
+        [Test]
+        public void MaintenanceScenarioSceneExistsAsAddressableAsset()
+        {
+            Assert.True(File.Exists("Assets/Scenes/OilSafetyTrainerMaintenanceDemo.unity"));
+            Assert.AreNotEqual(string.Empty, AssetDatabase.AssetPathToGUID("Assets/Scenes/OilSafetyTrainerMaintenanceDemo.unity"));
+        }
+
+        [Test]
+        public void BuildSettingsUsePrimaryDemoSceneByDefault()
+        {
+            var scenes = EditorBuildSettings.scenes.Select(scene => scene.path).ToArray();
+
+            Assert.That(scenes, Contains.Item("Assets/Scenes/OilSafetyTrainerDemo.unity"));
+            Assert.That(scenes, Does.Not.Contain("Assets/Scenes/OilSafetyTrainerMaintenanceDemo.unity"));
+        }
+
+        [Test]
         public void ScenarioBuilderDoesNotDuplicateManagerScenarioArrays()
         {
             var source = File.ReadAllText("Assets/Editor/SafetyTrainerScenarioBuilder.cs");

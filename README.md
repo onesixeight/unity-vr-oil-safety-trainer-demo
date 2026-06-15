@@ -27,6 +27,7 @@ The current version targets keyboard and mouse interaction so the training loop 
 - Desktop fallback controls with a `PlayerRig` abstraction for future XR support
 - TextMeshPro Russian UI with checklist, guide, prompts, score, and final result screen
 - ScriptableObject scenario config for PPE, hazards, penalties, recommendations, and scoring
+- Secondary maintenance scenario config and generated scene to demonstrate scenario reuse
 - Generated one-scene training yard with curated PPE and hazard reference art
 - Editor-only scene builder split into focused environment, scenario, material, primitive, UI, layout, theme, and visual-catalog helpers
 - Edit Mode regression tests covering scene layout, gameplay flow, reset behavior, hover state, Russian text, and HUD text fit
@@ -61,8 +62,8 @@ Assets/
   Art/         curated PPE, poster, terminal, and hazard reference images
   Editor/      scene and project generator
   Materials/   generated Unity materials
-  Scenarios/   ScriptableObject scenario config
-  Scenes/      demo scene
+  Scenarios/   ScriptableObject scenario configs
+  Scenes/      generated demo and maintenance scenes
   Scripts/     gameplay, UI, player, and scenario logic
   Tests/       Edit Mode regression tests
   Textures/    local texture set used by the environment
@@ -148,7 +149,7 @@ This repository is intentionally scoped as an MVP training simulator rather than
 ## Roadmap
 
 - Extract the generated UI into a prefab once the interface is stable enough for hand editing.
-- Add a second scenario module to prove the `SafetyScenarioConfig` authoring path.
+- Add in-game scenario selection between the generated walkthrough variants.
 - Add an OpenXR/XR Interaction Toolkit rig after the desktop gameplay loop stays stable.
 - Expand hazard feedback with short micro-lessons and richer final assessment reporting.
 

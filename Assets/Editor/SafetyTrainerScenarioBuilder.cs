@@ -44,8 +44,56 @@ namespace OilSafetyTrainer.Editor
                     SafetyTrainerScenarioDefaults.CreateHazards(),
                     SafetyTrainerScenarioDefaults.BaseScore,
                     SafetyTrainerScenarioDefaults.MissingPpePenalty,
-                    SafetyTrainerScenarioDefaults.UninspectedHazardPenalty);
+                    SafetyTrainerScenarioDefaults.UninspectedHazardPenalty,
+                    SafetyTrainerScenarioDefaults.ScenarioName,
+                    SafetyTrainerText.Objective,
+                    SafetyTrainerText.GuideText,
+                    SafetyTrainerText.StartMessage);
 
+                EditorUtility.SetDirty(config);
+                AssetDatabase.SaveAssetIfDirty(config);
+            }
+            else if (config.EnsureInstructionText(
+                SafetyTrainerScenarioDefaults.ScenarioName,
+                SafetyTrainerText.Objective,
+                SafetyTrainerText.GuideText,
+                SafetyTrainerText.StartMessage))
+            {
+                EditorUtility.SetDirty(config);
+                AssetDatabase.SaveAssetIfDirty(config);
+            }
+
+            return config;
+        }
+
+        public static SafetyScenarioConfig CreateMaintenanceScenarioConfig()
+        {
+            var config = AssetDatabase.LoadAssetAtPath<SafetyScenarioConfig>(SafetyTrainerPaths.MaintenanceScenarioConfigPath);
+            if (config == null)
+            {
+                config = ScriptableObject.CreateInstance<SafetyScenarioConfig>();
+                AssetDatabase.CreateAsset(config, SafetyTrainerPaths.MaintenanceScenarioConfigPath);
+
+                config.Configure(
+                    SafetyTrainerScenarioDefaults.CreateMaintenanceRequiredPpe(),
+                    SafetyTrainerScenarioDefaults.CreateMaintenanceHazards(),
+                    SafetyTrainerScenarioDefaults.BaseScore,
+                    SafetyTrainerScenarioDefaults.MaintenanceMissingPpePenalty,
+                    SafetyTrainerScenarioDefaults.MaintenanceUninspectedHazardPenalty,
+                    SafetyTrainerScenarioDefaults.MaintenanceScenarioName,
+                    SafetyTrainerScenarioDefaults.MaintenanceObjective,
+                    SafetyTrainerScenarioDefaults.MaintenanceGuideText,
+                    SafetyTrainerScenarioDefaults.MaintenanceStartMessage);
+
+                EditorUtility.SetDirty(config);
+                AssetDatabase.SaveAssetIfDirty(config);
+            }
+            else if (config.EnsureInstructionText(
+                SafetyTrainerScenarioDefaults.MaintenanceScenarioName,
+                SafetyTrainerScenarioDefaults.MaintenanceObjective,
+                SafetyTrainerScenarioDefaults.MaintenanceGuideText,
+                SafetyTrainerScenarioDefaults.MaintenanceStartMessage))
+            {
                 EditorUtility.SetDirty(config);
                 AssetDatabase.SaveAssetIfDirty(config);
             }

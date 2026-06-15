@@ -6,6 +6,8 @@ namespace OilSafetyTrainer
 
         public const string DefaultPrompt = "WASD - движение | Мышь - обзор | E - действие | H - памятка | R - сброс | Q - выход";
 
+        public const string StartMessage = "Цель: наденьте СИЗ, пройдите КПП и найдите опасности на площадке.";
+
         public const string GuideText =
             "1. Наденьте 4 обязательных СИЗ у КПП.\n" +
             "2. Пройдите рамку допуска в рабочую зону.\n" +

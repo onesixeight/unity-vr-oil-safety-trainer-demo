@@ -3,6 +3,7 @@ using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using OilSafetyTrainer;
 
 namespace OilSafetyTrainer.Editor
 {
@@ -11,12 +12,23 @@ namespace OilSafetyTrainer.Editor
         [MenuItem("Oil Safety Trainer/Rebuild Demo Scene")]
         public static void BuildProject()
         {
+            BuildScenarioScene(SafetyTrainerPaths.ScenePath, SafetyTrainerScenarioBuilder.CreateScenarioConfig());
+        }
+
+        [MenuItem("Oil Safety Trainer/Rebuild Maintenance Demo Scene")]
+        public static void BuildMaintenanceProject()
+        {
+            BuildScenarioScene(SafetyTrainerPaths.MaintenanceScenePath, SafetyTrainerScenarioBuilder.CreateMaintenanceScenarioConfig());
+        }
+
+        private static void BuildScenarioScene(string scenePath, SafetyScenarioConfig scenarioConfig)
+        {
             SafetyTrainerPaths.EnsureFolders();
             SafetyTrainerTextMeshProResources.EnsureImported();
 
             var materials = SafetyTrainerMaterialFactory.CreateMaterialSet();
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            scene.name = "OilSafetyTrainerDemo";
+            scene.name = System.IO.Path.GetFileNameWithoutExtension(scenePath);
 
             SafetyTrainerEnvironmentBuilder.ConfigureRenderSettings();
             SafetyTrainerEnvironmentBuilder.CreateLighting();
@@ -32,7 +44,6 @@ namespace OilSafetyTrainer.Editor
 
             var ui = SafetyTrainerUiBuilder.Create();
             var playerStart = SafetyTrainerScenarioBuilder.CreatePlayerStart();
-            var scenarioConfig = SafetyTrainerScenarioBuilder.CreateScenarioConfig();
             var manager = SafetyTrainerScenarioBuilder.CreateManager(ui, playerStart, scenarioConfig);
 
             var playerRig = SafetyTrainerScenarioBuilder.CreatePlayer(playerStart.position, playerStart.rotation, out var desktopController);
@@ -43,8 +54,9 @@ namespace OilSafetyTrainer.Editor
             SafetyTrainerScenarioBuilder.CreateGate(playerStart, materials, geometry);
             SafetyTrainerEnvironmentBuilder.CreateInstructionBoards(materials, geometry);
 
-            EditorSceneManager.SaveScene(scene, SafetyTrainerPaths.ScenePath);
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(SafetyTrainerPaths.ScenePath, true) };
+            EditorSceneManager.SaveScene(scene, scenePath);
+            AssetDatabase.ImportAsset(scenePath);
+            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(scenePath, true) };
             PlayerSettings.productName = "Oil Safety Trainer VR Demo";
             PlayerSettings.companyName = "Codex Demo";
             PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
@@ -53,7 +65,7 @@ namespace OilSafetyTrainer.Editor
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.codexdemo.oilsafetytrainer");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"Oil safety trainer demo scene generated at {SafetyTrainerPaths.ScenePath}");
+            Debug.Log($"Oil safety trainer demo scene generated at {scenePath}");
         }
     }
 }

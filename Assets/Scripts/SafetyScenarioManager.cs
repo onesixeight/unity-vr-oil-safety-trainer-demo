@@ -97,12 +97,12 @@ namespace OilSafetyTrainer
         {
             EnforceFullscreenForDemoBuild();
             scorePanel?.HideFinal();
-            scorePanel?.SetGuide(SafetyTrainerText.GuideText);
+            scorePanel?.SetGuide(GetScenarioGuideText());
             scorePanel?.ShowGuide();
             scorePanel?.BindActions(ResetScenario, QuitDemo);
             SetInteractionPrompt(SafetyTrainerText.DefaultPrompt);
             UpdateHud();
-            scorePanel?.ShowMessage("Цель: наденьте СИЗ, пройдите КПП и найдите опасности на площадке.", 6f);
+            scorePanel?.ShowMessage(GetScenarioStartMessage(), 6f);
         }
 
         public bool EquipPpe(string ppeId, string label)
@@ -272,9 +272,24 @@ namespace OilSafetyTrainer
                 return;
             }
 
-            scorePanel.SetObjective(SafetyTrainerText.Objective);
+            scorePanel.SetObjective(GetScenarioObjectiveText());
             scorePanel.SetChecklist(BuildChecklistText());
             scorePanel.SetScore($"Текущая оценка: {state.CalculateScore(includeRemainingHazardPenalty: false)}/100");
+        }
+
+        private string GetScenarioObjectiveText()
+        {
+            return scenarioConfig != null ? scenarioConfig.ObjectiveText : SafetyTrainerText.Objective;
+        }
+
+        private string GetScenarioGuideText()
+        {
+            return scenarioConfig != null ? scenarioConfig.GuideText : SafetyTrainerText.GuideText;
+        }
+
+        private string GetScenarioStartMessage()
+        {
+            return scenarioConfig != null ? scenarioConfig.StartMessage : SafetyTrainerText.StartMessage;
         }
 
         private string BuildChecklistText()
