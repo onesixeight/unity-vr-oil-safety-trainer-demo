@@ -16,29 +16,29 @@ namespace OilSafetyTrainer.Editor
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvasObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.referenceResolution = SafetyTrainerUiLayout.ReferenceResolution;
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             canvasObject.AddComponent<GraphicRaycaster>();
 
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            var objective = SafetyTrainerPrimitiveFactory.CreateText("Objective", canvasObject.transform, font, string.Empty, 20, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -18f), new Vector2(760f, 34f), new Vector2(0f, 1f), true, 16, 20);
-            var checklist = SafetyTrainerPrimitiveFactory.CreateText("Checklist", canvasObject.transform, font, string.Empty, 15, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -78f), new Vector2(430f, 245f), new Vector2(0f, 1f), true, 12, 15);
-            var score = SafetyTrainerPrimitiveFactory.CreateText("Score", canvasObject.transform, font, string.Empty, 16, TextAnchor.LowerLeft, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(20f, 90f), new Vector2(320f, 26f), new Vector2(0f, 0f), true, 13, 16);
-            var prompt = SafetyTrainerPrimitiveFactory.CreateText("Prompt", canvasObject.transform, font, string.Empty, 18, TextAnchor.LowerCenter, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(900f, 34f), new Vector2(0.5f, 0f), true, 14, 18);
-            var message = SafetyTrainerPrimitiveFactory.CreateText("Message", canvasObject.transform, font, string.Empty, 18, TextAnchor.UpperRight, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -250f), new Vector2(580f, 170f), new Vector2(1f, 1f), true, 15, 18);
-            SafetyTrainerPrimitiveFactory.CreateText("Crosshair", canvasObject.transform, font, "+", 24, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(28f, 28f), new Vector2(0.5f, 0.5f));
+            var objective = SafetyTrainerPrimitiveFactory.CreateText("Objective", canvasObject.transform, font, string.Empty, 20, TextAnchor.UpperLeft, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.ObjectivePosition, SafetyTrainerUiLayout.ObjectiveSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 16, 20);
+            var checklist = SafetyTrainerPrimitiveFactory.CreateText("Checklist", canvasObject.transform, font, string.Empty, 15, TextAnchor.UpperLeft, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.ChecklistPosition, SafetyTrainerUiLayout.ChecklistSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 12, 15);
+            var score = SafetyTrainerPrimitiveFactory.CreateText("Score", canvasObject.transform, font, string.Empty, 16, TextAnchor.LowerLeft, SafetyTrainerUiLayout.BottomLeftAnchor, SafetyTrainerUiLayout.BottomLeftAnchor, SafetyTrainerUiLayout.ScorePosition, SafetyTrainerUiLayout.ScoreSize, SafetyTrainerUiLayout.BottomLeftAnchor, true, 13, 16);
+            var prompt = SafetyTrainerPrimitiveFactory.CreateText("Prompt", canvasObject.transform, font, string.Empty, 18, TextAnchor.LowerCenter, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.PromptPosition, SafetyTrainerUiLayout.PromptSize, SafetyTrainerUiLayout.BottomCenterAnchor, true, 14, 18);
+            var message = SafetyTrainerPrimitiveFactory.CreateText("Message", canvasObject.transform, font, string.Empty, 18, TextAnchor.UpperRight, SafetyTrainerUiLayout.TopRightAnchor, SafetyTrainerUiLayout.TopRightAnchor, SafetyTrainerUiLayout.MessagePosition, SafetyTrainerUiLayout.MessageSize, SafetyTrainerUiLayout.TopRightAnchor, true, 15, 18);
+            SafetyTrainerPrimitiveFactory.CreateText("Crosshair", canvasObject.transform, font, "+", 24, TextAnchor.MiddleCenter, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.CenterAnchor, Vector2.zero, SafetyTrainerUiLayout.CrosshairSize, SafetyTrainerUiLayout.CenterAnchor);
 
-            var guidePanel = SafetyTrainerPrimitiveFactory.CreatePanel("Guide Panel", canvasObject.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-20f, 20f), new Vector2(412f, 220f), new Color(0.02f, 0.06f, 0.08f, 0.94f), new Vector2(1f, 0f));
+            var guidePanel = SafetyTrainerPrimitiveFactory.CreatePanel("Guide Panel", canvasObject.transform, SafetyTrainerUiLayout.BottomRightAnchor, SafetyTrainerUiLayout.BottomRightAnchor, SafetyTrainerUiLayout.GuidePanelPosition, SafetyTrainerUiLayout.GuidePanelSize, new Color(0.02f, 0.06f, 0.08f, 0.94f), SafetyTrainerUiLayout.BottomRightAnchor);
             var guideGroup = guidePanel.AddComponent<CanvasGroup>();
-            SafetyTrainerPrimitiveFactory.CreateText("Guide Title", guidePanel.transform, font, "Памятка", 22, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(18f, -16f), new Vector2(190f, 34f), new Vector2(0f, 1f), true, 18, 22);
-            var guideText = SafetyTrainerPrimitiveFactory.CreateText("Guide Text", guidePanel.transform, font, string.Empty, 14, TextAnchor.UpperLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(18f, -60f), new Vector2(-36f, -72f), new Vector2(0f, 1f), true, 11, 14);
+            SafetyTrainerPrimitiveFactory.CreateText("Guide Title", guidePanel.transform, font, "Памятка", 22, TextAnchor.UpperLeft, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.GuideTitlePosition, SafetyTrainerUiLayout.GuideTitleSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 18, 22);
+            var guideText = SafetyTrainerPrimitiveFactory.CreateText("Guide Text", guidePanel.transform, font, string.Empty, 14, TextAnchor.UpperLeft, SafetyTrainerUiLayout.StretchAnchorMin, SafetyTrainerUiLayout.StretchAnchorMax, SafetyTrainerUiLayout.GuideTextPosition, SafetyTrainerUiLayout.GuideTextSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 11, 14);
 
-            var finalPanel = SafetyTrainerPrimitiveFactory.CreatePanel("Final Panel", canvasObject.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(760f, 430f), new Color(0f, 0f, 0f, 0.94f), new Vector2(0.5f, 0.5f));
+            var finalPanel = SafetyTrainerPrimitiveFactory.CreatePanel("Final Panel", canvasObject.transform, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.FinalPanelPosition, SafetyTrainerUiLayout.FinalPanelSize, new Color(0f, 0f, 0f, 0.94f), SafetyTrainerUiLayout.CenterAnchor);
             var group = finalPanel.AddComponent<CanvasGroup>();
-            SafetyTrainerPrimitiveFactory.CreateText("Final Title", finalPanel.transform, font, "Результаты обхода", 27, TextAnchor.UpperCenter, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -20f), new Vector2(520f, 36f), new Vector2(0.5f, 1f), true, 24, 27);
-            var finalText = SafetyTrainerPrimitiveFactory.CreateText("Final Text", finalPanel.transform, font, string.Empty, 20, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -70f), new Vector2(712f, 250f), new Vector2(0f, 1f), true, 15, 20);
-            var resetButton = CreateButton("Reset Button", finalPanel.transform, font, "Начать заново", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-118f, 28f), new Vector2(220f, 50f), new Color(0.12f, 0.5f, 0.22f, 0.96f), new Vector2(0.5f, 0f));
-            var quitButton = CreateButton("Quit Button", finalPanel.transform, font, "Выход", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(118f, 28f), new Vector2(180f, 50f), new Color(0.5f, 0.12f, 0.12f, 0.96f), new Vector2(0.5f, 0f));
+            SafetyTrainerPrimitiveFactory.CreateText("Final Title", finalPanel.transform, font, "Результаты обхода", 27, TextAnchor.UpperCenter, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), SafetyTrainerUiLayout.FinalTitlePosition, SafetyTrainerUiLayout.FinalTitleSize, new Vector2(0.5f, 1f), true, 24, 27);
+            var finalText = SafetyTrainerPrimitiveFactory.CreateText("Final Text", finalPanel.transform, font, string.Empty, 20, TextAnchor.UpperLeft, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.FinalTextPosition, SafetyTrainerUiLayout.FinalTextSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 15, 20);
+            var resetButton = CreateButton("Reset Button", finalPanel.transform, font, "Начать заново", SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.ResetButtonPosition, SafetyTrainerUiLayout.ResetButtonSize, new Color(0.12f, 0.5f, 0.22f, 0.96f), SafetyTrainerUiLayout.BottomCenterAnchor);
+            var quitButton = CreateButton("Quit Button", finalPanel.transform, font, "Выход", SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.QuitButtonPosition, SafetyTrainerUiLayout.QuitButtonSize, new Color(0.5f, 0.12f, 0.12f, 0.96f), SafetyTrainerUiLayout.BottomCenterAnchor);
 
             var controller = canvasObject.AddComponent<ScorePanelController>();
             controller.Bind(objective, checklist, prompt, message, score, finalText, guideText, group, guideGroup, resetButton, quitButton);
@@ -55,7 +55,7 @@ namespace OilSafetyTrainer.Editor
             colors.pressedColor = new Color(0.82f, 0.82f, 0.82f, 1f);
             colors.selectedColor = colors.highlightedColor;
             button.colors = colors;
-            SafetyTrainerPrimitiveFactory.CreateText("Label", buttonObject.transform, font, label, 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, new Vector2(-12f, -10f), new Vector2(0.5f, 0.5f), true, 14, 18);
+            SafetyTrainerPrimitiveFactory.CreateText("Label", buttonObject.transform, font, label, 18, TextAnchor.MiddleCenter, SafetyTrainerUiLayout.StretchAnchorMin, SafetyTrainerUiLayout.StretchAnchorMax, Vector2.zero, SafetyTrainerUiLayout.ButtonLabelSize, SafetyTrainerUiLayout.CenterAnchor, true, 14, 18);
             return button;
         }
 

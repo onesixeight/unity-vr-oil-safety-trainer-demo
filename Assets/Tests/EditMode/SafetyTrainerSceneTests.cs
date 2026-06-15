@@ -261,6 +261,28 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void UiLayoutOwnsHudAndPanelGeometry()
+        {
+            const string builderPath = "Assets/Editor/SafetyTrainerUiBuilder.cs";
+            const string layoutPath = "Assets/Editor/SafetyTrainerUiLayout.cs";
+
+            Assert.True(File.Exists(layoutPath), "HUD and panel geometry should live in a dedicated editor UI layout file.");
+
+            var builderSource = File.ReadAllText(builderPath);
+            var layoutSource = File.ReadAllText(layoutPath);
+
+            StringAssert.Contains("SafetyTrainerUiLayout", builderSource);
+            StringAssert.DoesNotContain("new Vector2(20f, -18f)", builderSource);
+            StringAssert.DoesNotContain("new Vector2(760f, 34f)", builderSource);
+            StringAssert.DoesNotContain("new Vector2(412f, 220f)", builderSource);
+            StringAssert.DoesNotContain("new Vector2(760f, 430f)", builderSource);
+
+            StringAssert.Contains("ObjectivePosition", layoutSource);
+            StringAssert.Contains("GuidePanelSize", layoutSource);
+            StringAssert.Contains("FinalPanelSize", layoutSource);
+        }
+
+        [Test]
         public void GeneratedInteractablesUseScenarioConfigText()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
