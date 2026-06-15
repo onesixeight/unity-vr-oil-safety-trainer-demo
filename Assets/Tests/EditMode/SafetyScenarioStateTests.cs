@@ -1,5 +1,10 @@
 using NUnit.Framework;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
 
 namespace OilSafetyTrainer.Tests
 {
@@ -82,8 +87,11 @@ namespace OilSafetyTrainer.Tests
         [Test]
         public void QuitDemoInvokesQuitRequestHandler()
         {
+            OpenIsolatedScene();
             var gameObject = new GameObject("Scenario Manager Test");
+            LogAssert.Expect(LogType.Error, new Regex("^SafetyScenarioManager: scorePanel is not assigned"));
             var manager = gameObject.AddComponent<SafetyScenarioManager>();
+            InvokeLifecycle(manager, "Awake");
             var wasCalled = false;
             var originalHandler = SafetyScenarioManager.QuitRequestHandler;
 
@@ -98,6 +106,45 @@ namespace OilSafetyTrainer.Tests
                 SafetyScenarioManager.QuitRequestHandler = originalHandler;
                 Object.DestroyImmediate(gameObject);
             }
+        }
+
+        [Test]
+        public void DestroyingCurrentManagerClearsInstance()
+        {
+            OpenIsolatedScene();
+            var gameObject = new GameObject("Scenario Manager Instance Test");
+            LogAssert.Expect(LogType.Error, new Regex("^SafetyScenarioManager: scorePanel is not assigned"));
+            var manager = gameObject.AddComponent<SafetyScenarioManager>();
+            InvokeLifecycle(manager, "Awake");
+
+            Object.DestroyImmediate(gameObject);
+
+            Assert.IsTrue(SafetyScenarioManager.Instance == null);
+        }
+
+        [Test]
+        public void MissingScorePanelLogsExplicitError()
+        {
+            OpenIsolatedScene();
+            var gameObject = new GameObject("Scenario Manager Missing UI Test");
+            LogAssert.Expect(LogType.Error, new Regex("^SafetyScenarioManager: scorePanel is not assigned"));
+
+            var manager = gameObject.AddComponent<SafetyScenarioManager>();
+            InvokeLifecycle(manager, "Awake");
+
+            Object.DestroyImmediate(gameObject);
+        }
+
+        private static void OpenIsolatedScene()
+        {
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        }
+
+        private static void InvokeLifecycle(MonoBehaviour behaviour, string methodName)
+        {
+            var method = behaviour.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull(method, $"Could not find lifecycle method {methodName} on {behaviour.GetType().Name}.");
+            method.Invoke(behaviour, null);
         }
     }
 }

@@ -53,6 +53,18 @@ namespace OilSafetyTrainer
 
             Instance = this;
             BuildState();
+            if (scorePanel == null)
+            {
+                Debug.LogError("SafetyScenarioManager: scorePanel is not assigned. UI will not render.", this);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         private void Start()
