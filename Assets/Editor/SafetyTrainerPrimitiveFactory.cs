@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -82,21 +83,20 @@ namespace OilSafetyTrainer.Editor
             collider.isTrigger = false;
         }
 
-        public static Text CreateText(string name, Transform parent, Font font, string text, int size, TextAnchor alignment, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Vector2 pivot, bool bestFit = false, int minBestFitSize = 10, int maxBestFitSize = 20)
+        public static TextMeshProUGUI CreateText(string name, Transform parent, Font font, string text, int size, TextAnchor alignment, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Vector2 pivot, bool bestFit = false, int minBestFitSize = 10, int maxBestFitSize = 20)
         {
             var textObject = new GameObject(name);
             textObject.transform.SetParent(parent, false);
-            var uiText = textObject.AddComponent<Text>();
+            var uiText = textObject.AddComponent<TextMeshProUGUI>();
             uiText.text = text;
-            uiText.font = font;
             uiText.fontSize = size;
             uiText.color = Color.white;
-            uiText.alignment = alignment;
-            uiText.horizontalOverflow = HorizontalWrapMode.Wrap;
-            uiText.verticalOverflow = VerticalWrapMode.Truncate;
-            uiText.resizeTextForBestFit = bestFit;
-            uiText.resizeTextMinSize = minBestFitSize;
-            uiText.resizeTextMaxSize = maxBestFitSize;
+            uiText.alignment = ToTextMeshProAlignment(alignment);
+            uiText.textWrappingMode = TextWrappingModes.Normal;
+            uiText.overflowMode = TextOverflowModes.Truncate;
+            uiText.enableAutoSizing = bestFit;
+            uiText.fontSizeMin = minBestFitSize;
+            uiText.fontSizeMax = maxBestFitSize;
 
             var rect = uiText.GetComponent<RectTransform>();
             rect.anchorMin = anchorMin;
@@ -105,6 +105,23 @@ namespace OilSafetyTrainer.Editor
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = sizeDelta;
             return uiText;
+        }
+
+        private static TextAlignmentOptions ToTextMeshProAlignment(TextAnchor alignment)
+        {
+            return alignment switch
+            {
+                TextAnchor.UpperLeft => TextAlignmentOptions.TopLeft,
+                TextAnchor.UpperCenter => TextAlignmentOptions.Top,
+                TextAnchor.UpperRight => TextAlignmentOptions.TopRight,
+                TextAnchor.MiddleLeft => TextAlignmentOptions.Left,
+                TextAnchor.MiddleCenter => TextAlignmentOptions.Center,
+                TextAnchor.MiddleRight => TextAlignmentOptions.Right,
+                TextAnchor.LowerLeft => TextAlignmentOptions.BottomLeft,
+                TextAnchor.LowerCenter => TextAlignmentOptions.Bottom,
+                TextAnchor.LowerRight => TextAlignmentOptions.BottomRight,
+                _ => TextAlignmentOptions.Left
+            };
         }
 
         public static GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Color color, Vector2 pivot)

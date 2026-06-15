@@ -3,6 +3,7 @@ using UnityEditor.SceneManagement;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -285,6 +286,40 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void GeneratedUiUsesTextMeshProForReadableRussianText()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            var textObjects = new[]
+            {
+                "Objective",
+                "Checklist",
+                "Score",
+                "Prompt",
+                "Message",
+                "Guide Title",
+                "Guide Text",
+                "Final Title",
+                "Final Text",
+                "Crosshair"
+            };
+
+            foreach (var objectName in textObjects)
+            {
+                var textObject = GameObject.Find(objectName);
+                Assert.NotNull(textObject, $"Missing UI text object: {objectName}");
+                Assert.NotNull(textObject.GetComponent<TextMeshProUGUI>(), $"{objectName} should use TextMeshProUGUI.");
+                Assert.IsNull(textObject.GetComponent<Text>(), $"{objectName} should not keep legacy UnityEngine.UI.Text.");
+            }
+
+            foreach (var label in GameObject.FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Exclude)
+                .Where(item => item.name == "Label"))
+            {
+                Assert.IsNull(label.GetComponent<Text>(), "Button labels should not keep legacy UnityEngine.UI.Text.");
+            }
+        }
+
+        [Test]
         public void RepresentativeRussianTextsFitTheirUiAreas()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
@@ -321,15 +356,15 @@ namespace OilSafetyTrainer.Tests
 
         private static void AssertTextFits(string objectName, string sampleText, float tolerance = 4f)
         {
-            var text = GameObject.Find(objectName).GetComponent<Text>();
+            var text = GameObject.Find(objectName).GetComponent<TextMeshProUGUI>();
             Assert.NotNull(text, $"Missing text element: {objectName}");
 
             text.text = sampleText;
+            text.ForceMeshUpdate();
             Canvas.ForceUpdateCanvases();
 
             var rect = text.rectTransform.rect.size;
-            var settings = text.GetGenerationSettings(rect);
-            var preferredHeight = text.cachedTextGeneratorForLayout.GetPreferredHeight(sampleText, settings) / text.pixelsPerUnit;
+            var preferredHeight = text.GetPreferredValues(sampleText, rect.x, 0f).y;
 
             Assert.LessOrEqual(
                 preferredHeight,

@@ -3,7 +3,8 @@
   "rootNamespace": "OilSafetyTrainer",
   "references": [
     "UnityEngine.UI",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

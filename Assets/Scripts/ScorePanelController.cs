@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -7,13 +8,13 @@ namespace OilSafetyTrainer
 {
     public sealed class ScorePanelController : MonoBehaviour
     {
-        [SerializeField] private Text objectiveText;
-        [SerializeField] private Text checklistText;
-        [SerializeField] private Text promptText;
-        [SerializeField] private Text messageText;
-        [SerializeField] private Text scoreText;
-        [SerializeField] private Text finalText;
-        [SerializeField] private Text guideText;
+        [SerializeField] private TMP_Text objectiveText;
+        [SerializeField] private TMP_Text checklistText;
+        [SerializeField] private TMP_Text promptText;
+        [SerializeField] private TMP_Text messageText;
+        [SerializeField] private TMP_Text scoreText;
+        [SerializeField] private TMP_Text finalText;
+        [SerializeField] private TMP_Text guideText;
         [SerializeField] private CanvasGroup finalPanel;
         [SerializeField] private CanvasGroup guidePanel;
         [SerializeField] private Button resetButton;
@@ -28,13 +29,13 @@ namespace OilSafetyTrainer
         public string FinalResultText => finalText != null ? finalText.text : string.Empty;
 
         public void Bind(
-            Text objective,
-            Text checklist,
-            Text prompt,
-            Text message,
-            Text score,
-            Text final,
-            Text guide,
+            TMP_Text objective,
+            TMP_Text checklist,
+            TMP_Text prompt,
+            TMP_Text message,
+            TMP_Text score,
+            TMP_Text final,
+            TMP_Text guide,
             CanvasGroup finalGroup,
             CanvasGroup guideGroup,
             Button resetActionButton,

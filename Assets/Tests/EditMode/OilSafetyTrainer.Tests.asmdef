@@ -2,7 +2,8 @@
   "name": "OilSafetyTrainer.Tests",
   "rootNamespace": "OilSafetyTrainer.Tests",
   "references": [
-    "OilSafetyTrainer"
+    "OilSafetyTrainer",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [
     "Editor"

@@ -12,6 +12,7 @@ namespace OilSafetyTrainer.Editor
         public static void BuildProject()
         {
             SafetyTrainerPaths.EnsureFolders();
+            SafetyTrainerTextMeshProResources.EnsureImported();
 
             var materials = SafetyTrainerMaterialFactory.CreateMaterialSet();
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
