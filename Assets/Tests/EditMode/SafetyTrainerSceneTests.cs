@@ -67,6 +67,75 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void CheckpointPosterDisplayFacesTheCheckpointArea()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            var board = GameObject.Find("Checkpoint Poster Board");
+            var display = GameObject.Find("Checkpoint Poster Display");
+
+            Assert.NotNull(board);
+            Assert.NotNull(display);
+            Assert.Greater(
+                display.transform.position.x,
+                board.transform.position.x,
+                "Checkpoint poster image should sit on the yard-facing side of the board.");
+            AssertDisplayFrontFaces(display.transform, Vector3.right, "Checkpoint poster image should face into the checkpoint area.");
+        }
+
+        [Test]
+        public void DeskAndValveImagesClearTheirSupportingGeometry()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            AssertDisplayBottomClears("Checkpoint Desk Display", "Checkpoint Desk", 0.02f);
+            AssertDisplayBottomClears("Hazard Unsafe Valve Marker Image", "Valve Manifold Base", 0.08f);
+        }
+
+        [Test]
+        public void GuardrailGapImageFacesThePlayableYard()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            var board = GameObject.Find("Hazard Guardrail Gap Board");
+            var display = GameObject.Find("Hazard Guardrail Gap Image");
+
+            Assert.NotNull(board);
+            Assert.NotNull(display);
+            Assert.Less(
+                display.transform.position.z,
+                board.transform.position.z,
+                "Guardrail gap image should sit on the playable-yard side of the board.");
+            AssertDisplayFrontFaces(display.transform, Vector3.back, "Guardrail gap image should face the playable yard.");
+        }
+
+        [Test]
+        public void MainGroundCoversAllGameplayStations()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            var points = new[]
+            {
+                GameObject.Find("Desktop PlayerRig").transform.position,
+                GameObject.Find("PPE Helmet").transform.position,
+                GameObject.Find("PPE Boots").transform.position,
+                GameObject.Find("Hazard Guardrail Gap").transform.position,
+                GameObject.Find("Hazard Unsafe Valve Marker").transform.position,
+                GameObject.Find("Final Assessment Terminal").transform.position,
+                new Vector3(-4.2f, 0.5f, -3.2f),
+                new Vector3(20.2f, 0.5f, -3.2f)
+            };
+
+            foreach (var point in points)
+            {
+                var origin = point + Vector3.up * 0.75f;
+                var hasGround = Physics.Raycast(origin, Vector3.down, out var hit, 2f, ~0, QueryTriggerInteraction.Ignore);
+                Assert.IsTrue(hasGround, $"Missing ground support near {point}.");
+                Assert.GreaterOrEqual(hit.normal.y, 0.85f, $"Ground support near {point} is not walkable: {hit.collider.name}.");
+            }
+        }
+
+        [Test]
         public void SceneBuilderSourceDoesNotContainMojibakeRussianText()
         {
             var source = string.Join("\n", Directory
@@ -260,6 +329,31 @@ namespace OilSafetyTrainer.Tests
             Assert.NotNull(renderer, $"Display object has no renderer: {objectName}");
             Assert.NotNull(renderer.sharedMaterial, $"Display object has no material: {objectName}");
             Assert.NotNull(renderer.sharedMaterial.mainTexture, $"Display object has no texture assigned: {objectName}");
+        }
+
+        private static void AssertDisplayFrontFaces(Transform display, Vector3 expectedFrontDirection, string message)
+        {
+            var quadFront = -display.forward;
+            Assert.GreaterOrEqual(
+                Vector3.Dot(quadFront.normalized, expectedFrontDirection.normalized),
+                0.92f,
+                message);
+        }
+
+        private static void AssertDisplayBottomClears(string displayName, string supportName, float clearance)
+        {
+            var display = GameObject.Find(displayName);
+            var support = GameObject.Find(supportName);
+
+            Assert.NotNull(display, $"Missing display object: {displayName}");
+            Assert.NotNull(support, $"Missing support object: {supportName}");
+
+            var displayBounds = display.GetComponent<Renderer>().bounds;
+            var supportBounds = support.GetComponent<Renderer>().bounds;
+            Assert.GreaterOrEqual(
+                displayBounds.min.y,
+                supportBounds.max.y + clearance,
+                $"{displayName} is clipped into or hidden behind {supportName}.");
         }
 
         private static void AssertPpeHasInteractionZone(string stationName)

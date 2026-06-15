@@ -40,7 +40,7 @@ namespace OilSafetyTrainer.Editor
 
         public static void CreateYard(SafetyTrainerMaterialSet materials, Transform parent)
         {
-            SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Training Yard Floor", new Vector3(8f, -0.05f, 12f), new Vector3(26f, 0.1f, 28f), materials.Concrete, parent);
+            SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Training Yard Floor", new Vector3(8f, -0.05f, 5f), new Vector3(34f, 0.1f, 42f), materials.Concrete, parent);
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Dark Access Road", new Vector3(8f, 0.01f, 0f), new Vector3(7f, 0.04f, 24f), materials.Asphalt, parent);
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Checkpoint Pad", new Vector3(0f, 0.02f, -8f), new Vector3(8f, 0.06f, 6f), materials.SafetyYellow, parent);
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Final Assessment Pad", new Vector3(17f, 0.03f, 10f), new Vector3(5f, 0.06f, 4f), materials.SafeGreen, parent);
@@ -58,8 +58,8 @@ namespace OilSafetyTrainer.Editor
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "PPE Rack Base", new Vector3(0f, 0.34f, -8.4f), new Vector3(7.5f, 0.58f, 1.9f), materials.Steel, parent);
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "PPE Rack Rear Rail", new Vector3(0f, 0.84f, -9.15f), new Vector3(7.3f, 0.08f, 0.28f), materials.SafetyYellow, parent);
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Checkpoint Desk", new Vector3(5.8f, 0.7f, -6.4f), new Vector3(2.2f, 1.4f, 0.8f), materials.Steel, parent);
-            SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Desk Monitor", new Vector3(5.8f, 1.45f, -6.75f), new Vector3(0.8f, 0.48f, 0.08f), materials.White, parent);
-            SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Checkpoint Desk Display", "CheckpointDeskDisplay", SafetyTrainerPaths.CheckpointPosterPath, new Vector3(5.8f, 1.45f, -6.8f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.72f, 0.42f, 1f), parent);
+            SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Desk Monitor", new Vector3(5.8f, 1.64f, -6.75f), new Vector3(0.8f, 0.48f, 0.08f), materials.White, parent);
+            SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Checkpoint Desk Display", "CheckpointDeskDisplay", SafetyTrainerPaths.CheckpointPosterPath, new Vector3(5.8f, 1.64f, -6.8f), Quaternion.Euler(0f, 180f, 0f), new Vector3(0.72f, 0.42f, 1f), parent);
         }
 
         public static void CreateProcessEquipment(SafetyTrainerMaterialSet materials, Transform parent)
@@ -93,7 +93,7 @@ namespace OilSafetyTrainer.Editor
         public static void CreateInstructionBoards(SafetyTrainerMaterialSet materials, Transform parent)
         {
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Checkpoint Poster Board", new Vector3(-4.6f, 1.65f, -8.8f), new Vector3(0.08f, 1.8f, 2.6f), materials.White, parent);
-            SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Checkpoint Poster Display", "CheckpointPosterDisplay", SafetyTrainerPaths.CheckpointPosterPath, new Vector3(-4.65f, 1.65f, -8.8f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.55f, 2.25f, 1f), parent);
+            SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Checkpoint Poster Display", "CheckpointPosterDisplay", SafetyTrainerPaths.CheckpointPosterPath, new Vector3(-4.54f, 1.65f, -8.8f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.55f, 2.25f, 1f), parent, false);
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Work Zone Poster Board", new Vector3(20.8f, 1.75f, 1.2f), new Vector3(0.08f, 2f, 3.2f), materials.SafetyYellow, parent);
             SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Work Zone Poster Display", "WorkZonePosterDisplay", SafetyTrainerPaths.WorkZonePosterPath, new Vector3(20.74f, 1.75f, 1.2f), Quaternion.Euler(0f, -90f, 0f), new Vector3(1.75f, 2.75f, 1f), parent);
         }

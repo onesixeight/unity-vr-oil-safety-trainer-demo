@@ -76,7 +76,7 @@ namespace OilSafetyTrainer.Editor
                 "Остановитесь, выставьте временное ограждение и сообщите ответственному.",
                 SafetyTrainerPaths.HazardGuardrailPath,
                 new Vector3(6.2f, 1.1f, 11.85f),
-                Quaternion.Euler(0f, 180f, 0f),
+                Quaternion.identity,
                 materials.WarningOrange,
                 materials.InspectionBlue,
                 parent);
@@ -110,7 +110,7 @@ namespace OilSafetyTrainer.Editor
                 "Сигнал газоанализатора",
                 "Покиньте опасную зону по ветру, включите оповещение и действуйте по плану эвакуации.",
                 SafetyTrainerPaths.HazardGasWarningPath,
-                new Vector3(15.2f, 1.2f, 3.75f),
+                new Vector3(15.2f, 1.45f, 3.75f),
                 Quaternion.Euler(0f, 180f, 0f),
                 materials.WarningOrange,
                 materials.InspectionBlue,
@@ -122,7 +122,7 @@ namespace OilSafetyTrainer.Editor
                 "Открытый/непромаркированный клапан",
                 "Не переключайте арматуру без наряда, проверьте бирку LOTO и схему трубопровода.",
                 SafetyTrainerPaths.HazardUnsafeValvePath,
-                new Vector3(13.9f, 1.2f, 8.35f),
+                new Vector3(13.9f, 1.58f, 8.35f),
                 Quaternion.Euler(0f, -90f, 0f),
                 materials.WarningOrange,
                 materials.InspectionBlue,
@@ -187,8 +187,8 @@ namespace OilSafetyTrainer.Editor
             var board = SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, $"{name} Board", position, new Vector3(1.2f, 0.82f, 0.06f), material, parent);
             board.transform.rotation = rotation;
             board.transform.SetParent(root.transform, true);
-            SafetyTrainerPrimitiveFactory.CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + rotation * new Vector3(0f, 0f, -0.08f), rotation, new Vector3(1.08f, 0.68f, 1f), root.transform, false);
-            SafetyTrainerPrimitiveFactory.CreateInteractionProxy($"{name} Interaction Zone", position + rotation * new Vector3(0f, 0f, -0.14f), rotation, new Vector3(1.35f, 0.96f, 0.35f), root.transform);
+            SafetyTrainerPrimitiveFactory.CreateDisplayPanel($"{name} Image", $"{name.Replace(" ", string.Empty)}Display", texturePath, position + rotation * new Vector3(0f, 0f, -0.11f), rotation, new Vector3(1.08f, 0.68f, 1f), root.transform, false);
+            SafetyTrainerPrimitiveFactory.CreateInteractionProxy($"{name} Interaction Zone", position + rotation * new Vector3(0f, 0f, -0.18f), rotation, new Vector3(1.35f, 0.96f, 0.35f), root.transform);
 
             ConfigureHazard(root, id, label, mitigation, inspected, board.GetComponent<Renderer>());
         }
