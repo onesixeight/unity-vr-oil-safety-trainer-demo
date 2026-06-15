@@ -71,7 +71,7 @@ namespace OilSafetyTrainer
         {
             EnforceFullscreenForDemoBuild();
             scorePanel?.HideFinal();
-            scorePanel?.SetGuide(BuildGuideText());
+            scorePanel?.SetGuide(SafetyTrainerText.GuideText);
             scorePanel?.ShowGuide();
             scorePanel?.BindActions(ResetScenario, QuitDemo);
             SetInteractionPrompt(SafetyTrainerText.DefaultPrompt);
@@ -222,7 +222,7 @@ namespace OilSafetyTrainer
                 return;
             }
 
-            scorePanel.SetObjective("VR-тренажёр: безопасный обход нефтедобывающей площадки");
+            scorePanel.SetObjective(SafetyTrainerText.Objective);
             scorePanel.SetChecklist(BuildChecklistText());
             scorePanel.SetScore($"Текущая оценка: {state.CalculateScore(includeRemainingHazardPenalty: false)}/100");
         }
@@ -245,19 +245,6 @@ namespace OilSafetyTrainer
                 builder.AppendLine($"{mark} {item.label}");
             }
 
-            return builder.ToString();
-        }
-
-        private string BuildGuideText()
-        {
-            var builder = new StringBuilder();
-            builder.AppendLine("1. Наденьте 4 обязательных СИЗ у КПП.");
-            builder.AppendLine("2. Пройдите рамку допуска в рабочую зону.");
-            builder.AppendLine("3. Найдите 5 опасностей и отметьте их клавишей E.");
-            builder.AppendLine("4. Завершите обход у терминала оценки.");
-            builder.AppendLine();
-            builder.AppendLine("Управление: WASD - движение, мышь - обзор.");
-            builder.AppendLine("E - действие, H - памятка, R - сброс, Q - выход.");
             return builder.ToString();
         }
 

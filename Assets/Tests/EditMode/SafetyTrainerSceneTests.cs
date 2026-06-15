@@ -269,17 +269,14 @@ namespace OilSafetyTrainer.Tests
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
 
-            AssertTextFits("Objective", "VR-тренажёр: безопасный обход нефтедобывающей площадки");
+            AssertTextFits("Objective", SafetyTrainerText.Objective);
             AssertTextFits("Checklist",
                 "СИЗ перед входом:\n[x] Каска\n[x] Защитные очки\n[x] Перчатки\n[x] Диэлектрические ботинки\n\n" +
                 "Опасности на площадке:\n[x] Разрыв ограждения\n[x] Разлив нефти/масла\n[x] Горячая поверхность трубопровода\n[x] Сигнал газоанализатора\n[x] Открытый/непромаркированный клапан");
             AssertTextFits("Score", "Текущая оценка: 100/100");
             AssertTextFits("Prompt", SafetyTrainerText.DefaultPrompt);
             AssertTextFits("Message", "Опасность выявлена: Горячая поверхность трубопровода. Оградите зону и дождитесь охлаждения оборудования.");
-            AssertTextFits("Guide Text",
-                "1. Наденьте 4 обязательных СИЗ у КПП.\n2. Пройдите рамку допуска в рабочую зону.\n" +
-                "3. Найдите 5 опасностей и отметьте их клавишей E.\n4. Завершите обход у терминала оценки.\n\n" +
-                "Управление: WASD - движение, мышь - обзор.\nE - действие, H - памятка, R - сброс, Q - выход.");
+            AssertTextFits("Guide Text", SafetyTrainerText.GuideText);
             AssertTextFits("Final Text",
                 "Итог тренажёра\nОценка: 76/100\nСИЗ: 3/4\nОпасности: 3/5\nНе хватает СИЗ: Диэлектрические ботинки\n" +
                 "Не найдены опасности: Разлив нефти/масла, Сигнал газоанализатора\n\nРезультат: повторите инструктаж.\n" +
