@@ -32,11 +32,12 @@ namespace OilSafetyTrainer.Editor
 
             var ui = SafetyTrainerUiBuilder.Create();
             var playerStart = SafetyTrainerScenarioBuilder.CreatePlayerStart();
-            var manager = SafetyTrainerScenarioBuilder.CreateManager(ui, playerStart);
+            var scenarioConfig = SafetyTrainerScenarioBuilder.CreateScenarioConfig();
+            var manager = SafetyTrainerScenarioBuilder.CreateManager(ui, playerStart, scenarioConfig);
 
             var playerRig = SafetyTrainerScenarioBuilder.CreatePlayer(playerStart.position, playerStart.rotation, out var desktopController);
-            var ppeStations = SafetyTrainerScenarioBuilder.CreatePpeStations(materials, geometry);
-            var hazards = SafetyTrainerScenarioBuilder.CreateHazards(materials, geometry);
+            var ppeStations = SafetyTrainerScenarioBuilder.CreatePpeStations(materials, geometry, scenarioConfig);
+            var hazards = SafetyTrainerScenarioBuilder.CreateHazards(materials, geometry, scenarioConfig);
             manager.ConfigureRuntimeReferences(ppeStations, hazards, playerRig, desktopController);
             SafetyTrainerScenarioBuilder.CreateFinalStation(materials, geometry);
             SafetyTrainerScenarioBuilder.CreateGate(playerStart, materials, geometry);

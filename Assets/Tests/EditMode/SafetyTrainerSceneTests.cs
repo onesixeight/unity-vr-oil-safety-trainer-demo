@@ -161,6 +161,30 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void SourceFilesDoNotContainEncodedUtf8MojibakeMarkers()
+        {
+            var source = string.Join("\n", Directory
+                .GetFiles("Assets", "*.cs", SearchOption.AllDirectories)
+                .Select(File.ReadAllText));
+            var mojibakeMarkers = new[]
+            {
+                "\u0420\u0459",
+                "\u0420\u045D",
+                "\u0420\u00A0",
+                "\u0420\u201C",
+                "\u0420\u040E",
+                "\u0420\u045B",
+                "\u0421\u0452",
+                "\u0421\u2030"
+            };
+
+            foreach (var marker in mojibakeMarkers)
+            {
+                Assert.False(source.Contains(marker), $"Source still contains encoded UTF-8 mojibake marker: {marker}");
+            }
+        }
+
+        [Test]
         public void PpePlacardBuilderDoesNotOverridePassedPosition()
         {
             var source = string.Join("\n", Directory
@@ -208,6 +232,84 @@ namespace OilSafetyTrainer.Tests
             var configProperty = serializedManager.FindProperty("scenarioConfig");
             Assert.NotNull(configProperty, "SafetyScenarioManager should expose a serialized scenarioConfig field.");
             Assert.AreSame(config, configProperty.objectReferenceValue);
+        }
+
+        [Test]
+        public void ScenarioBuilderDoesNotDuplicateManagerScenarioArrays()
+        {
+            var source = File.ReadAllText("Assets/Editor/SafetyTrainerScenarioBuilder.cs");
+
+            StringAssert.DoesNotContain("manager.requiredPpe =", source);
+            StringAssert.DoesNotContain("manager.hazards =", source);
+        }
+
+        [Test]
+        public void GeneratedInteractablesUseScenarioConfigText()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
+
+            var config = AssetDatabase.LoadAssetAtPath<SafetyScenarioConfig>("Assets/Scenarios/OilSafetyTrainerScenario.asset");
+            Assert.NotNull(config);
+
+            var ppeById = Object.FindObjectsByType<PpeStation>(FindObjectsInactive.Exclude)
+                .ToDictionary(item => item.PpeId);
+            foreach (var item in config.RequiredPpe)
+            {
+                Assert.That(ppeById, Contains.Key(item.id));
+                Assert.AreEqual(item.label, ppeById[item.id].PpeLabel);
+            }
+
+            var hazardById = Object.FindObjectsByType<HazardInspectionPoint>(FindObjectsInactive.Exclude)
+                .ToDictionary(item => item.HazardId);
+            foreach (var item in config.Hazards)
+            {
+                Assert.That(hazardById, Contains.Key(item.id));
+                Assert.AreEqual(item.label, hazardById[item.id].HazardLabel);
+            }
+        }
+
+        [Test]
+        public void ScenarioConfigCreationPreservesExistingAssetEdits()
+        {
+            var config = AssetDatabase.LoadAssetAtPath<SafetyScenarioConfig>("Assets/Scenarios/OilSafetyTrainerScenario.asset");
+            Assert.NotNull(config);
+            var originalPpe = config.RequiredPpe.ToArray();
+            var originalHazards = config.Hazards.ToArray();
+            var originalBaseScore = config.BaseScore;
+            var originalMissingPpePenalty = config.MissingPpePenalty;
+            var originalUninspectedHazardPenalty = config.UninspectedHazardPenalty;
+
+            try
+            {
+                config.Configure(
+                    new[] { new SafetyScenarioConfig.PpeItem { id = "helmet", label = "Тестовая каска" } },
+                    originalHazards,
+                    originalBaseScore,
+                    originalMissingPpePenalty,
+                    originalUninspectedHazardPenalty);
+                EditorUtility.SetDirty(config);
+                AssetDatabase.SaveAssetIfDirty(config);
+
+                var builderType = System.Type.GetType("OilSafetyTrainer.Editor.SafetyTrainerScenarioBuilder, OilSafetyTrainer.Editor");
+                Assert.NotNull(builderType, "Could not find SafetyTrainerScenarioBuilder editor type.");
+                var createScenarioConfig = builderType.GetMethod("CreateScenarioConfig");
+                Assert.NotNull(createScenarioConfig, "Could not find CreateScenarioConfig.");
+                var loaded = (SafetyScenarioConfig)createScenarioConfig.Invoke(null, null);
+
+                Assert.AreEqual(1, loaded.RequiredPpe.Length);
+                Assert.AreEqual("Тестовая каска", loaded.RequiredPpe[0].label);
+            }
+            finally
+            {
+                config.Configure(
+                    originalPpe,
+                    originalHazards,
+                    originalBaseScore,
+                    originalMissingPpePenalty,
+                    originalUninspectedHazardPenalty);
+                EditorUtility.SetDirty(config);
+                AssetDatabase.SaveAssetIfDirty(config);
+            }
         }
 
         [Test]
