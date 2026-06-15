@@ -283,6 +283,28 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void UiThemeOwnsPanelAndButtonColors()
+        {
+            const string builderPath = "Assets/Editor/SafetyTrainerUiBuilder.cs";
+            const string themePath = "Assets/Editor/SafetyTrainerUiTheme.cs";
+
+            Assert.True(File.Exists(themePath), "UI colors should live in a dedicated editor theme file.");
+
+            var builderSource = File.ReadAllText(builderPath);
+            var themeSource = File.ReadAllText(themePath);
+
+            StringAssert.Contains("SafetyTrainerUiTheme", builderSource);
+            StringAssert.DoesNotContain("new Color(", builderSource);
+
+            StringAssert.Contains("GuidePanel", themeSource);
+            StringAssert.Contains("FinalPanel", themeSource);
+            StringAssert.Contains("ResetButton", themeSource);
+            StringAssert.Contains("QuitButton", themeSource);
+            StringAssert.Contains("ButtonHighlighted", themeSource);
+            StringAssert.Contains("ButtonPressed", themeSource);
+        }
+
+        [Test]
         public void GeneratedInteractablesUseScenarioConfigText()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");

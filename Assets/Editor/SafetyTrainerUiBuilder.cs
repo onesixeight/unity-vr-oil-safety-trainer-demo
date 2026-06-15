@@ -28,17 +28,17 @@ namespace OilSafetyTrainer.Editor
             var message = SafetyTrainerPrimitiveFactory.CreateText("Message", canvasObject.transform, font, string.Empty, 18, TextAnchor.UpperRight, SafetyTrainerUiLayout.TopRightAnchor, SafetyTrainerUiLayout.TopRightAnchor, SafetyTrainerUiLayout.MessagePosition, SafetyTrainerUiLayout.MessageSize, SafetyTrainerUiLayout.TopRightAnchor, true, 15, 18);
             SafetyTrainerPrimitiveFactory.CreateText("Crosshair", canvasObject.transform, font, "+", 24, TextAnchor.MiddleCenter, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.CenterAnchor, Vector2.zero, SafetyTrainerUiLayout.CrosshairSize, SafetyTrainerUiLayout.CenterAnchor);
 
-            var guidePanel = SafetyTrainerPrimitiveFactory.CreatePanel("Guide Panel", canvasObject.transform, SafetyTrainerUiLayout.BottomRightAnchor, SafetyTrainerUiLayout.BottomRightAnchor, SafetyTrainerUiLayout.GuidePanelPosition, SafetyTrainerUiLayout.GuidePanelSize, new Color(0.02f, 0.06f, 0.08f, 0.94f), SafetyTrainerUiLayout.BottomRightAnchor);
+            var guidePanel = SafetyTrainerPrimitiveFactory.CreatePanel("Guide Panel", canvasObject.transform, SafetyTrainerUiLayout.BottomRightAnchor, SafetyTrainerUiLayout.BottomRightAnchor, SafetyTrainerUiLayout.GuidePanelPosition, SafetyTrainerUiLayout.GuidePanelSize, SafetyTrainerUiTheme.GuidePanel, SafetyTrainerUiLayout.BottomRightAnchor);
             var guideGroup = guidePanel.AddComponent<CanvasGroup>();
             SafetyTrainerPrimitiveFactory.CreateText("Guide Title", guidePanel.transform, font, "Памятка", 22, TextAnchor.UpperLeft, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.GuideTitlePosition, SafetyTrainerUiLayout.GuideTitleSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 18, 22);
             var guideText = SafetyTrainerPrimitiveFactory.CreateText("Guide Text", guidePanel.transform, font, string.Empty, 14, TextAnchor.UpperLeft, SafetyTrainerUiLayout.StretchAnchorMin, SafetyTrainerUiLayout.StretchAnchorMax, SafetyTrainerUiLayout.GuideTextPosition, SafetyTrainerUiLayout.GuideTextSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 11, 14);
 
-            var finalPanel = SafetyTrainerPrimitiveFactory.CreatePanel("Final Panel", canvasObject.transform, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.FinalPanelPosition, SafetyTrainerUiLayout.FinalPanelSize, new Color(0f, 0f, 0f, 0.94f), SafetyTrainerUiLayout.CenterAnchor);
+            var finalPanel = SafetyTrainerPrimitiveFactory.CreatePanel("Final Panel", canvasObject.transform, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.CenterAnchor, SafetyTrainerUiLayout.FinalPanelPosition, SafetyTrainerUiLayout.FinalPanelSize, SafetyTrainerUiTheme.FinalPanel, SafetyTrainerUiLayout.CenterAnchor);
             var group = finalPanel.AddComponent<CanvasGroup>();
             SafetyTrainerPrimitiveFactory.CreateText("Final Title", finalPanel.transform, font, "Результаты обхода", 27, TextAnchor.UpperCenter, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), SafetyTrainerUiLayout.FinalTitlePosition, SafetyTrainerUiLayout.FinalTitleSize, new Vector2(0.5f, 1f), true, 24, 27);
             var finalText = SafetyTrainerPrimitiveFactory.CreateText("Final Text", finalPanel.transform, font, string.Empty, 20, TextAnchor.UpperLeft, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.TopLeftAnchor, SafetyTrainerUiLayout.FinalTextPosition, SafetyTrainerUiLayout.FinalTextSize, SafetyTrainerUiLayout.TopLeftAnchor, true, 15, 20);
-            var resetButton = CreateButton("Reset Button", finalPanel.transform, font, "Начать заново", SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.ResetButtonPosition, SafetyTrainerUiLayout.ResetButtonSize, new Color(0.12f, 0.5f, 0.22f, 0.96f), SafetyTrainerUiLayout.BottomCenterAnchor);
-            var quitButton = CreateButton("Quit Button", finalPanel.transform, font, "Выход", SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.QuitButtonPosition, SafetyTrainerUiLayout.QuitButtonSize, new Color(0.5f, 0.12f, 0.12f, 0.96f), SafetyTrainerUiLayout.BottomCenterAnchor);
+            var resetButton = CreateButton("Reset Button", finalPanel.transform, font, "Начать заново", SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.ResetButtonPosition, SafetyTrainerUiLayout.ResetButtonSize, SafetyTrainerUiTheme.ResetButton, SafetyTrainerUiLayout.BottomCenterAnchor);
+            var quitButton = CreateButton("Quit Button", finalPanel.transform, font, "Выход", SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.BottomCenterAnchor, SafetyTrainerUiLayout.QuitButtonPosition, SafetyTrainerUiLayout.QuitButtonSize, SafetyTrainerUiTheme.QuitButton, SafetyTrainerUiLayout.BottomCenterAnchor);
 
             var controller = canvasObject.AddComponent<ScorePanelController>();
             controller.Bind(objective, checklist, prompt, message, score, finalText, guideText, group, guideGroup, resetButton, quitButton);
@@ -50,9 +50,9 @@ namespace OilSafetyTrainer.Editor
             var buttonObject = SafetyTrainerPrimitiveFactory.CreatePanel(name, parent, anchorMin, anchorMax, anchoredPosition, sizeDelta, color, pivot);
             var button = buttonObject.AddComponent<Button>();
             var colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(0.95f, 0.95f, 0.95f, 1f);
-            colors.pressedColor = new Color(0.82f, 0.82f, 0.82f, 1f);
+            colors.normalColor = SafetyTrainerUiTheme.ButtonNormal;
+            colors.highlightedColor = SafetyTrainerUiTheme.ButtonHighlighted;
+            colors.pressedColor = SafetyTrainerUiTheme.ButtonPressed;
             colors.selectedColor = colors.highlightedColor;
             button.colors = colors;
             SafetyTrainerPrimitiveFactory.CreateText("Label", buttonObject.transform, font, label, 18, TextAnchor.MiddleCenter, SafetyTrainerUiLayout.StretchAnchorMin, SafetyTrainerUiLayout.StretchAnchorMax, Vector2.zero, SafetyTrainerUiLayout.ButtonLabelSize, SafetyTrainerUiLayout.CenterAnchor, true, 14, 18);
