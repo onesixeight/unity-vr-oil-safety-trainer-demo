@@ -40,49 +40,11 @@ namespace OilSafetyTrainer.Editor
                 AssetDatabase.CreateAsset(config, SafetyTrainerPaths.ScenarioConfigPath);
 
                 config.Configure(
-                    new[]
-                    {
-                        new SafetyScenarioConfig.PpeItem { id = "helmet", label = "Каска" },
-                        new SafetyScenarioConfig.PpeItem { id = "goggles", label = "Защитные очки" },
-                        new SafetyScenarioConfig.PpeItem { id = "gloves", label = "Перчатки" },
-                        new SafetyScenarioConfig.PpeItem { id = "boots", label = "Диэлектрические ботинки" },
-                    },
-                    new[]
-                    {
-                        new SafetyScenarioConfig.HazardItem
-                        {
-                            id = "guardrail_gap",
-                            label = "Разрыв ограждения",
-                            recommendation = "Остановитесь, выставьте временное ограждение и сообщите ответственному."
-                        },
-                        new SafetyScenarioConfig.HazardItem
-                        {
-                            id = "oil_spill",
-                            label = "Разлив нефти/масла",
-                            recommendation = "Оградите место, используйте сорбент и сообщите о проливе."
-                        },
-                        new SafetyScenarioConfig.HazardItem
-                        {
-                            id = "hot_pipe",
-                            label = "Горячая поверхность трубопровода",
-                            recommendation = "Не касайтесь трубы без допуска, проверьте термоизоляцию и предупреждающие знаки."
-                        },
-                        new SafetyScenarioConfig.HazardItem
-                        {
-                            id = "gas_warning",
-                            label = "Сигнал газоанализатора",
-                            recommendation = "Покиньте опасную зону по ветру, включите оповещение и действуйте по плану эвакуации."
-                        },
-                        new SafetyScenarioConfig.HazardItem
-                        {
-                            id = "unsafe_valve",
-                            label = "Открытый/непромаркированный клапан",
-                            recommendation = "Не переключайте арматуру без наряда, проверьте бирку LOTO и схему трубопровода."
-                        }
-                    },
-                    100,
-                    12,
-                    8);
+                    SafetyTrainerScenarioDefaults.CreateRequiredPpe(),
+                    SafetyTrainerScenarioDefaults.CreateHazards(),
+                    SafetyTrainerScenarioDefaults.BaseScore,
+                    SafetyTrainerScenarioDefaults.MissingPpePenalty,
+                    SafetyTrainerScenarioDefaults.UninspectedHazardPenalty);
 
                 EditorUtility.SetDirty(config);
                 AssetDatabase.SaveAssetIfDirty(config);
@@ -125,8 +87,8 @@ namespace OilSafetyTrainer.Editor
             return (scenarioConfig?.RequiredPpe ?? Array.Empty<SafetyScenarioConfig.PpeItem>())
                 .Select(item =>
                 {
-                    var definition = GetPpeDefinition(item.id);
-                    var material = definition.UseSafetyYellow ? materials.SafetyYellow : materials.White;
+                    var definition = SafetyTrainerVisualCatalog.GetPpe(item.id);
+                    var material = ResolveMaterial(materials, definition.MaterialRole);
                     return CreatePpePlacard(definition.Name, item.id, item.label, definition.TexturePath, definition.Position, material, materials.SafeGreen, parent);
                 })
                 .ToArray();
@@ -142,114 +104,54 @@ namespace OilSafetyTrainer.Editor
             var hazards = new List<HazardInspectionPoint>();
             foreach (var item in scenarioConfig?.Hazards ?? Array.Empty<SafetyScenarioConfig.HazardItem>())
             {
-                switch (item.id)
+                var definition = SafetyTrainerVisualCatalog.GetHazard(item.id);
+                if (definition.Kind == HazardVisualKind.OilSpillSurface)
                 {
-                    case "guardrail_gap":
-                        hazards.Add(CreateHazardPlacard(
-                            "Hazard Guardrail Gap",
-                            item.id,
-                            item.label,
-                            item.recommendation,
-                            SafetyTrainerPaths.HazardGuardrailPath,
-                            new Vector3(6.2f, 1.1f, 11.85f),
-                            Quaternion.identity,
-                            materials.WarningOrange,
-                            materials.InspectionBlue,
-                            parent));
-                        break;
-
-                    case "oil_spill":
-                        hazards.Add(CreateOilSpillHazard(item, materials, parent));
-                        break;
-
-                    case "hot_pipe":
-                        hazards.Add(CreateHazardPlacard(
-                            "Hazard Hot Pipe Marker",
-                            item.id,
-                            item.label,
-                            item.recommendation,
-                            SafetyTrainerPaths.HazardHotPipePath,
-                            new Vector3(10f, 1.55f, 1.55f),
-                            Quaternion.identity,
-                            materials.PipeRed,
-                            materials.InspectionBlue,
-                            parent));
-                        break;
-
-                    case "gas_warning":
-                        hazards.Add(CreateHazardPlacard(
-                            "Hazard Gas Warning Beacon",
-                            item.id,
-                            item.label,
-                            item.recommendation,
-                            SafetyTrainerPaths.HazardGasWarningPath,
-                            new Vector3(15.2f, 1.45f, 3.75f),
-                            Quaternion.Euler(0f, 180f, 0f),
-                            materials.WarningOrange,
-                            materials.InspectionBlue,
-                            parent));
-                        break;
-
-                    case "unsafe_valve":
-                        hazards.Add(CreateHazardPlacard(
-                            "Hazard Unsafe Valve Marker",
-                            item.id,
-                            item.label,
-                            item.recommendation,
-                            SafetyTrainerPaths.HazardUnsafeValvePath,
-                            new Vector3(13.9f, 1.58f, 8.35f),
-                            Quaternion.Euler(0f, -90f, 0f),
-                            materials.WarningOrange,
-                            materials.InspectionBlue,
-                            parent));
-                        break;
+                    hazards.Add(CreateOilSpillHazard(item, definition, materials, parent));
+                    continue;
                 }
+
+                hazards.Add(CreateHazardPlacard(
+                    definition.Name,
+                    item.id,
+                    item.label,
+                    item.recommendation,
+                    definition.TexturePath,
+                    definition.Position,
+                    definition.Rotation,
+                    ResolveMaterial(materials, definition.MaterialRole),
+                    materials.InspectionBlue,
+                    parent));
             }
 
             SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Temporary Missing Guardrail Visual", new Vector3(8.5f, 1.05f, 12.3f), new Vector3(2.2f, 0.18f, 0.18f), materials.Steel, parent);
             return hazards.ToArray();
         }
 
-        private static HazardInspectionPoint CreateOilSpillHazard(SafetyScenarioConfig.HazardItem item, SafetyTrainerMaterialSet materials, Transform parent)
+        private static HazardInspectionPoint CreateOilSpillHazard(SafetyScenarioConfig.HazardItem item, HazardVisualDefinition definition, SafetyTrainerMaterialSet materials, Transform parent)
         {
             var spill = SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Oil Spill Visual", new Vector3(3.5f, 0.03f, 2.1f), new Vector3(2.4f, 0.02f, 1.6f), materials.OilBlack, parent);
             spill.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
-            var spillDisplayMaterial = SafetyTrainerMaterialFactory.CreateDisplayMaterial("HazardOilSpillSurface", SafetyTrainerPaths.HazardOilSpillPath);
+            var spillDisplayMaterial = SafetyTrainerMaterialFactory.CreateDisplayMaterial("HazardOilSpillSurface", definition.TexturePath);
             if (spillDisplayMaterial != null)
             {
                 spill.GetComponent<Renderer>().sharedMaterial = spillDisplayMaterial;
             }
 
-            SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Oil Spill Image", "HazardOilSpillSurface", SafetyTrainerPaths.HazardOilSpillPath, new Vector3(3.5f, 0.07f, 2.1f), Quaternion.Euler(90f, 25f, 0f), new Vector3(2.25f, 1.5f, 1f), spill.transform, false);
+            SafetyTrainerPrimitiveFactory.CreateDisplayPanel("Oil Spill Image", "HazardOilSpillSurface", definition.TexturePath, definition.Position, definition.Rotation, new Vector3(2.25f, 1.5f, 1f), spill.transform, false);
             return ConfigureHazard(spill, item.id, item.label, item.recommendation, materials.InspectionBlue);
         }
 
-        private static PpePlacardDefinition GetPpeDefinition(string id)
+        private static Material ResolveMaterial(SafetyTrainerMaterialSet materials, SafetyTrainerMaterialRole role)
         {
-            return id switch
+            return role switch
             {
-                "helmet" => new PpePlacardDefinition("PPE Helmet", SafetyTrainerPaths.PpeHelmetPath, new Vector3(-2.8f, 1.02f, -7.35f), true),
-                "goggles" => new PpePlacardDefinition("PPE Goggles", SafetyTrainerPaths.PpeGogglesPath, new Vector3(-1f, 1.02f, -7.35f), false),
-                "gloves" => new PpePlacardDefinition("PPE Gloves", SafetyTrainerPaths.PpeGlovesPath, new Vector3(0.8f, 1.02f, -7.35f), true),
-                "boots" => new PpePlacardDefinition("PPE Boots", SafetyTrainerPaths.PpeBootsPath, new Vector3(2.6f, 1.02f, -7.35f), false),
-                _ => throw new ArgumentException($"Unknown PPE id in scenario config: {id}", nameof(id))
+                SafetyTrainerMaterialRole.SafetyYellow => materials.SafetyYellow,
+                SafetyTrainerMaterialRole.White => materials.White,
+                SafetyTrainerMaterialRole.WarningOrange => materials.WarningOrange,
+                SafetyTrainerMaterialRole.PipeRed => materials.PipeRed,
+                _ => throw new ArgumentOutOfRangeException(nameof(role), role, null)
             };
-        }
-
-        private readonly struct PpePlacardDefinition
-        {
-            public PpePlacardDefinition(string name, string texturePath, Vector3 position, bool useSafetyYellow)
-            {
-                Name = name;
-                TexturePath = texturePath;
-                Position = position;
-                UseSafetyYellow = useSafetyYellow;
-            }
-
-            public string Name { get; }
-            public string TexturePath { get; }
-            public Vector3 Position { get; }
-            public bool UseSafetyYellow { get; }
         }
 
         public static void CreateFinalStation(SafetyTrainerMaterialSet materials, Transform parent)

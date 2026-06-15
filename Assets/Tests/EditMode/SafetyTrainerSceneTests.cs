@@ -244,6 +244,23 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
+        public void VisualCatalogOwnsScenarioVisualMappings()
+        {
+            const string builderPath = "Assets/Editor/SafetyTrainerScenarioBuilder.cs";
+            const string catalogPath = "Assets/Editor/SafetyTrainerVisualCatalog.cs";
+
+            Assert.True(File.Exists(catalogPath), "PPE and hazard visual mappings should live in a dedicated editor catalog.");
+
+            var builderSource = File.ReadAllText(builderPath);
+            var catalogSource = File.ReadAllText(catalogPath);
+            foreach (var id in new[] { "helmet", "goggles", "gloves", "boots", "guardrail_gap", "oil_spill", "hot_pipe", "gas_warning", "unsafe_valve" })
+            {
+                StringAssert.DoesNotContain($"\"{id}\"", builderSource, $"Scenario builder should not hard-code visual mapping id '{id}'.");
+                StringAssert.Contains($"\"{id}\"", catalogSource, $"Visual catalog should own visual mapping id '{id}'.");
+            }
+        }
+
+        [Test]
         public void GeneratedInteractablesUseScenarioConfigText()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
