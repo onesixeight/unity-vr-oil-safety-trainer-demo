@@ -30,14 +30,12 @@
 .vscode/
 .idea/
 
-# Test, build, and local review artifacts
+# Test, build, and local debug artifacts
 *.log
 *.xml
-after-alt-tab.png
-manual-start-screen.png
-manual-start-screen-fixed.png
-ui-start-after-text-fix.png
-art-visual-check*.png
+/TestResults-*.xml
+/*.png
+!/docs/screenshots/**
 
 # Local exploratory art not yet integrated into the project
 Assets/Review/
