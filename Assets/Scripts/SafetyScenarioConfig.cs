@@ -31,6 +31,7 @@ namespace OilSafetyTrainer
         [SerializeField] private string objectiveText = string.Empty;
         [SerializeField] private string guideText = string.Empty;
         [SerializeField] private string startMessage = string.Empty;
+        [SerializeField] private bool forceFullscreenInBuild = true;
 
         public PpeItem[] RequiredPpe => requiredPpe;
         public HazardItem[] Hazards => hazards;
@@ -41,6 +42,7 @@ namespace OilSafetyTrainer
         public string ObjectiveText => string.IsNullOrWhiteSpace(objectiveText) ? SafetyTrainerText.Objective : objectiveText;
         public string GuideText => string.IsNullOrWhiteSpace(guideText) ? SafetyTrainerText.GuideText : guideText;
         public string StartMessage => string.IsNullOrWhiteSpace(startMessage) ? SafetyTrainerText.StartMessage : startMessage;
+        public bool ForceFullscreenInBuild => forceFullscreenInBuild;
 
         public void Configure(
             PpeItem[] ppeItems,
@@ -51,7 +53,8 @@ namespace OilSafetyTrainer
             string configuredScenarioName = null,
             string configuredObjectiveText = null,
             string configuredGuideText = null,
-            string configuredStartMessage = null)
+            string configuredStartMessage = null,
+            bool configuredForceFullscreenInBuild = true)
         {
             requiredPpe = ppeItems ?? Array.Empty<PpeItem>();
             hazards = hazardItems ?? Array.Empty<HazardItem>();
@@ -77,6 +80,8 @@ namespace OilSafetyTrainer
             {
                 startMessage = configuredStartMessage;
             }
+
+            forceFullscreenInBuild = configuredForceFullscreenInBuild;
         }
 
         public bool EnsureInstructionText(string defaultScenarioName, string defaultObjectiveText, string defaultGuideText, string defaultStartMessage)

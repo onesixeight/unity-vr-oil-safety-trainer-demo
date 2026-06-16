@@ -31,13 +31,15 @@ namespace OilSafetyTrainer.Editor
             var labelObject = new GameObject(name);
             labelObject.transform.SetParent(parent);
             labelObject.transform.SetPositionAndRotation(position, rotation);
-            var textMesh = labelObject.AddComponent<TextMesh>();
+            labelObject.transform.localScale = Vector3.one * characterSize;
+
+            var textMesh = labelObject.AddComponent<TextMeshPro>();
             textMesh.text = text;
-            textMesh.anchor = TextAnchor.MiddleCenter;
-            textMesh.alignment = TextAlignment.Center;
-            textMesh.characterSize = characterSize;
-            textMesh.fontSize = 32;
+            textMesh.alignment = TextAlignmentOptions.Center;
+            textMesh.fontSize = 3.2f;
             textMesh.color = color;
+            textMesh.enableWordWrapping = false;
+            textMesh.rectTransform.sizeDelta = new Vector2(8f, 1.4f);
         }
 
         public static void CreateDisplayPanel(string name, string materialName, string texturePath, Vector3 position, Quaternion rotation, Vector3 scale, Transform parent, bool flipToCamera = true)
@@ -83,7 +85,7 @@ namespace OilSafetyTrainer.Editor
             collider.isTrigger = false;
         }
 
-        public static TextMeshProUGUI CreateText(string name, Transform parent, Font font, string text, int size, TextAnchor alignment, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Vector2 pivot, bool bestFit = false, int minBestFitSize = 10, int maxBestFitSize = 20)
+        public static TextMeshProUGUI CreateText(string name, Transform parent, string text, int size, TextAnchor alignment, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Vector2 pivot, bool bestFit = false, int minBestFitSize = 10, int maxBestFitSize = 20)
         {
             var textObject = new GameObject(name);
             textObject.transform.SetParent(parent, false);

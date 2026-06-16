@@ -9,7 +9,7 @@ Desktop-first Unity safety trainer demo for oil production site inspections, des
 - Engine: Unity `6000.4.11f1`
 - Platform: Windows desktop fallback, keyboard and mouse
 - UI language: Russian
-- Latest local verification: Edit Mode tests `41/41`, Windows build success, manual gameplay smoke passed
+- Latest local verification: Edit Mode tests `44/44`, Windows build success, manual gameplay smoke passed
 - Scope: portfolio-ready MVP, not a finished industrial training product
 
 ## Overview
@@ -111,9 +111,21 @@ The project includes Edit Mode tests for:
 Recent local verification used during stabilization:
 
 ```text
-Edit Mode tests: 41/41 passed
+Edit Mode tests: 44/44 passed
 Windows standalone build: Build Finished, Result: Success
 Manual smoke: start, PPE selection, gate, 5 hazards, reset, final panel
+```
+
+Run Edit Mode tests from batch mode without `-quit`; Unity Test Framework exits the process after writing the XML result:
+
+```powershell
+& 'C:\Program Files\Unity\Hub\Editor\6000.4.11f1\Editor\Unity.exe' `
+  -batchmode `
+  -projectPath (Get-Location).Path `
+  -runTests `
+  -testPlatform EditMode `
+  -testResults (Join-Path (Get-Location).Path 'TestResults.xml') `
+  -logFile (Join-Path (Get-Location).Path 'test.log')
 ```
 
 ## Running The Project

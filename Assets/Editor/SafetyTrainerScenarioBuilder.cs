@@ -172,14 +172,20 @@ namespace OilSafetyTrainer.Editor
                     parent));
             }
 
-            SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Temporary Missing Guardrail Visual", new Vector3(8.5f, 1.05f, 12.3f), new Vector3(2.2f, 0.18f, 0.18f), materials.Steel, parent);
+            if (scenarioConfig?.Hazards.Any(item => item.id == "guardrail_gap") == true)
+            {
+                SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Temporary Missing Guardrail Visual", new Vector3(8.5f, 1.05f, 12.3f), new Vector3(2.2f, 0.18f, 0.18f), materials.Steel, parent);
+            }
+
             return hazards.ToArray();
         }
 
         private static HazardInspectionPoint CreateOilSpillHazard(SafetyScenarioConfig.HazardItem item, HazardVisualDefinition definition, SafetyTrainerMaterialSet materials, Transform parent)
         {
-            var spill = SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Oil Spill Visual", new Vector3(3.5f, 0.03f, 2.1f), new Vector3(2.4f, 0.02f, 1.6f), materials.OilBlack, parent);
-            spill.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
+            var spillPosition = definition.Position + Vector3.down * 0.04f;
+            var spillRotation = Quaternion.Euler(0f, definition.Rotation.eulerAngles.y, 0f);
+            var spill = SafetyTrainerPrimitiveFactory.CreatePrimitive(PrimitiveType.Cube, "Oil Spill Visual", spillPosition, new Vector3(2.4f, 0.02f, 1.6f), materials.OilBlack, parent);
+            spill.transform.rotation = spillRotation;
             var spillDisplayMaterial = SafetyTrainerMaterialFactory.CreateDisplayMaterial("HazardOilSpillSurface", definition.TexturePath);
             if (spillDisplayMaterial != null)
             {

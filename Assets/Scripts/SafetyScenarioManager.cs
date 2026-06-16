@@ -95,7 +95,11 @@ namespace OilSafetyTrainer
 
         private void Start()
         {
-            EnforceFullscreenForDemoBuild();
+            if (scenarioConfig == null || scenarioConfig.ForceFullscreenInBuild)
+            {
+                EnforceFullscreenForDemoBuild();
+            }
+
             scorePanel?.HideFinal();
             scorePanel?.SetGuide(GetScenarioGuideText());
             scorePanel?.ShowGuide();

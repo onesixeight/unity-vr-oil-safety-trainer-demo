@@ -28,8 +28,9 @@ namespace OilSafetyTrainer.Tests
             Assert.NotNull(Object.FindAnyObjectByType<EventSystem>());
             Assert.True(scorePanel.HasGuidePanel);
             Assert.True(scorePanel.HasFinalActions);
-            Assert.AreEqual(4, manager.requiredPpe.Length);
-            Assert.AreEqual(5, manager.hazards.Length);
+            Assert.NotNull(manager.ScenarioConfig);
+            Assert.AreEqual(4, manager.ScenarioConfig.RequiredPpe.Length);
+            Assert.AreEqual(5, manager.ScenarioConfig.Hazards.Length);
             Assert.AreEqual(4, Object.FindObjectsByType<PpeStation>(FindObjectsInactive.Exclude).Length);
             Assert.AreEqual(5, Object.FindObjectsByType<HazardInspectionPoint>(FindObjectsInactive.Exclude).Length);
         }
@@ -39,19 +40,26 @@ namespace OilSafetyTrainer.Tests
         {
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
 
-            AssertDisplayHasTexture("Checkpoint Desk Display");
-            AssertDisplayHasTexture("Checkpoint Poster Display");
-            AssertDisplayHasTexture("Work Zone Poster Display");
-            AssertDisplayHasTexture("Terminal Screen Display");
-            AssertDisplayHasTexture("PPE Helmet Image");
-            AssertDisplayHasTexture("PPE Goggles Image");
-            AssertDisplayHasTexture("PPE Gloves Image");
-            AssertDisplayHasTexture("PPE Boots Image");
-            AssertDisplayHasTexture("Hazard Guardrail Gap Image");
-            AssertDisplayHasTexture("Oil Spill Image");
-            AssertDisplayHasTexture("Hazard Hot Pipe Marker Image");
-            AssertDisplayHasTexture("Hazard Gas Warning Beacon Image");
-            AssertDisplayHasTexture("Hazard Unsafe Valve Marker Image");
+            foreach (var displayName in new[]
+            {
+                "Checkpoint Desk Display",
+                "Checkpoint Poster Display",
+                "Work Zone Poster Display",
+                "Terminal Screen Display",
+                "PPE Helmet Image",
+                "PPE Goggles Image",
+                "PPE Gloves Image",
+                "PPE Boots Image",
+                "Hazard Guardrail Gap Image",
+                "Oil Spill Image",
+                "Hazard Hot Pipe Marker Image",
+                "Hazard Gas Warning Beacon Image",
+                "Hazard Unsafe Valve Marker Image"
+            })
+            {
+                AssertDisplayHasTexture(displayName);
+            }
+
             Assert.IsNull(GameObject.Find("Checkpoint Poster Display Backface"));
             Assert.IsNull(GameObject.Find("Work Zone Poster Display Backface"));
             Assert.IsNull(GameObject.Find("Terminal Screen Display Backface"));
@@ -79,10 +87,7 @@ namespace OilSafetyTrainer.Tests
 
             Assert.NotNull(board);
             Assert.NotNull(display);
-            Assert.Greater(
-                display.transform.position.x,
-                board.transform.position.x,
-                "Checkpoint poster image should sit on the yard-facing side of the board.");
+            Assert.Greater(display.transform.position.x, board.transform.position.x);
             AssertDisplayFrontFaces(display.transform, Vector3.right, "Checkpoint poster image should face into the checkpoint area.");
         }
 
@@ -105,10 +110,7 @@ namespace OilSafetyTrainer.Tests
 
             Assert.NotNull(board);
             Assert.NotNull(display);
-            Assert.Less(
-                display.transform.position.z,
-                board.transform.position.z,
-                "Guardrail gap image should sit on the playable-yard side of the board.");
+            Assert.Less(display.transform.position.z, board.transform.position.z);
             AssertDisplayFrontFaces(display.transform, Vector3.back, "Guardrail gap image should face the playable yard.");
         }
 
@@ -139,7 +141,7 @@ namespace OilSafetyTrainer.Tests
         }
 
         [Test]
-        public void RuntimeAndBuilderSourceDoNotContainMojibakeRussianText()
+        public void RuntimeBuilderAndTestSourceDoNotContainMojibakeRussianText()
         {
             var source = string.Join("\n", Directory
                 .GetFiles("Assets", "*.cs", SearchOption.AllDirectories)
@@ -151,34 +153,18 @@ namespace OilSafetyTrainer.Tests
                 "Разлив",
                 "Горячая",
                 "Сигнал",
-                "Открытый"
+                "Открытый",
+                "Техническое обслуживание",
+                "Текущая оценка",
+                "Памятка"
             }.Select(ToWindows1251Mojibake);
 
             foreach (var fragment in mojibakeFragments)
             {
-                Assert.False(source.Contains(fragment), $"Builder source still contains mojibake text: {fragment}");
+                Assert.False(source.Contains(fragment), $"Source still contains mojibake text: {fragment}");
             }
-        }
 
-        [Test]
-        public void SourceFilesDoNotContainEncodedUtf8MojibakeMarkers()
-        {
-            var source = string.Join("\n", Directory
-                .GetFiles("Assets", "*.cs", SearchOption.AllDirectories)
-                .Select(File.ReadAllText));
-            var mojibakeMarkers = new[]
-            {
-                "\u0420\u0459",
-                "\u0420\u045D",
-                "\u0420\u00A0",
-                "\u0420\u201C",
-                "\u0420\u040E",
-                "\u0420\u045B",
-                "\u0421\u0452",
-                "\u0421\u2030"
-            };
-
-            foreach (var marker in mojibakeMarkers)
+            foreach (var marker in new[] { "\u0420\u0459", "\u0420\u045C", "\u0420\u045B", "\u0420\u040F", "\u0420\u040E", "\u0420\u00A0", "\u0420\u045E", "\u0432\u0402" })
             {
                 Assert.False(source.Contains(marker), $"Source still contains encoded UTF-8 mojibake marker: {marker}");
             }
@@ -191,10 +177,7 @@ namespace OilSafetyTrainer.Tests
                 .GetFiles("Assets/Editor", "SafetyTrainer*.cs")
                 .Select(File.ReadAllText));
 
-            StringAssert.DoesNotContain(
-                "position = new Vector3(position.x",
-                source,
-                "CreatePpePlacard should use explicit caller-provided coordinates instead of overriding y/z internally.");
+            StringAssert.DoesNotContain("position = new Vector3(position.x", source);
         }
 
         [Test]
@@ -218,29 +201,28 @@ namespace OilSafetyTrainer.Tests
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
 
             var config = AssetDatabase.LoadAssetAtPath<ScriptableObject>("Assets/Scenarios/OilSafetyTrainerScenario.asset");
-            Assert.NotNull(config, "Generated scenario data should live in a ScriptableObject asset.");
+            Assert.NotNull(config);
 
             var serializedConfig = new SerializedObject(config);
             Assert.AreEqual(4, serializedConfig.FindProperty("requiredPpe").arraySize);
             Assert.AreEqual(5, serializedConfig.FindProperty("hazards").arraySize);
             Assert.AreEqual(100, serializedConfig.FindProperty("baseScore").intValue);
+            Assert.True(serializedConfig.FindProperty("forceFullscreenInBuild").boolValue);
 
             var manager = Object.FindAnyObjectByType<SafetyScenarioManager>();
             Assert.NotNull(manager);
 
             var serializedManager = new SerializedObject(manager);
-            var configProperty = serializedManager.FindProperty("scenarioConfig");
-            Assert.NotNull(configProperty, "SafetyScenarioManager should expose a serialized scenarioConfig field.");
-            Assert.AreSame(config, configProperty.objectReferenceValue);
+            Assert.AreSame(config, serializedManager.FindProperty("scenarioConfig").objectReferenceValue);
         }
 
         [Test]
         public void SecondaryMaintenanceScenarioConfigHasDedicatedInstructionText()
         {
             var builderType = System.Type.GetType("OilSafetyTrainer.Editor.SafetyTrainerScenarioBuilder, OilSafetyTrainer.Editor");
-            Assert.NotNull(builderType, "Could not find SafetyTrainerScenarioBuilder editor type.");
+            Assert.NotNull(builderType);
             var createScenarioConfig = builderType.GetMethod("CreateMaintenanceScenarioConfig");
-            Assert.NotNull(createScenarioConfig, "Could not find maintenance scenario config factory.");
+            Assert.NotNull(createScenarioConfig);
 
             var config = (SafetyScenarioConfig)createScenarioConfig.Invoke(null, null);
             Assert.NotNull(config);
@@ -253,6 +235,7 @@ namespace OilSafetyTrainer.Tests
             Assert.AreEqual(3, serializedConfig.FindProperty("hazards").arraySize);
             Assert.AreEqual(100, serializedConfig.FindProperty("baseScore").intValue);
             Assert.AreEqual(10, serializedConfig.FindProperty("uninspectedHazardPenalty").intValue);
+            Assert.True(serializedConfig.FindProperty("forceFullscreenInBuild").boolValue);
         }
 
         [Test]
@@ -260,6 +243,19 @@ namespace OilSafetyTrainer.Tests
         {
             Assert.True(File.Exists("Assets/Scenes/OilSafetyTrainerMaintenanceDemo.unity"));
             Assert.AreNotEqual(string.Empty, AssetDatabase.AssetPathToGUID("Assets/Scenes/OilSafetyTrainerMaintenanceDemo.unity"));
+        }
+
+        [Test]
+        public void MaintenanceSceneDoesNotIncludeGuardrailGapVisualWhenScenarioOmitsHazard()
+        {
+            EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerMaintenanceDemo.unity");
+
+            var manager = Object.FindAnyObjectByType<SafetyScenarioManager>();
+            Assert.NotNull(manager);
+            Assert.NotNull(manager.ScenarioConfig);
+            Assert.False(manager.ScenarioConfig.Hazards.Any(item => item.id == "guardrail_gap"));
+            Assert.IsNull(GameObject.Find("Temporary Missing Guardrail Visual"));
+            Assert.IsNull(GameObject.Find("Hazard Guardrail Gap"));
         }
 
         [Test]
@@ -286,15 +282,18 @@ namespace OilSafetyTrainer.Tests
             const string builderPath = "Assets/Editor/SafetyTrainerScenarioBuilder.cs";
             const string catalogPath = "Assets/Editor/SafetyTrainerVisualCatalog.cs";
 
-            Assert.True(File.Exists(catalogPath), "PPE and hazard visual mappings should live in a dedicated editor catalog.");
+            Assert.True(File.Exists(catalogPath));
 
             var builderSource = File.ReadAllText(builderPath);
             var catalogSource = File.ReadAllText(catalogPath);
-            foreach (var id in new[] { "helmet", "goggles", "gloves", "boots", "guardrail_gap", "oil_spill", "hot_pipe", "gas_warning", "unsafe_valve" })
+            foreach (var id in new[] { "helmet", "goggles", "gloves", "boots", "oil_spill", "hot_pipe", "gas_warning", "unsafe_valve" })
             {
-                StringAssert.DoesNotContain($"\"{id}\"", builderSource, $"Scenario builder should not hard-code visual mapping id '{id}'.");
-                StringAssert.Contains($"\"{id}\"", catalogSource, $"Visual catalog should own visual mapping id '{id}'.");
+                StringAssert.DoesNotContain($"\"{id}\"", builderSource);
+                StringAssert.Contains($"\"{id}\"", catalogSource);
             }
+
+            StringAssert.Contains("\"guardrail_gap\"", builderSource, "Builder should gate the temporary guardrail visual by scenario hazard id.");
+            StringAssert.Contains("\"guardrail_gap\"", catalogSource);
         }
 
         [Test]
@@ -303,7 +302,7 @@ namespace OilSafetyTrainer.Tests
             const string builderPath = "Assets/Editor/SafetyTrainerUiBuilder.cs";
             const string layoutPath = "Assets/Editor/SafetyTrainerUiLayout.cs";
 
-            Assert.True(File.Exists(layoutPath), "HUD and panel geometry should live in a dedicated editor UI layout file.");
+            Assert.True(File.Exists(layoutPath));
 
             var builderSource = File.ReadAllText(builderPath);
             var layoutSource = File.ReadAllText(layoutPath);
@@ -313,7 +312,6 @@ namespace OilSafetyTrainer.Tests
             StringAssert.DoesNotContain("new Vector2(760f, 34f)", builderSource);
             StringAssert.DoesNotContain("new Vector2(412f, 220f)", builderSource);
             StringAssert.DoesNotContain("new Vector2(760f, 430f)", builderSource);
-
             StringAssert.Contains("ObjectivePosition", layoutSource);
             StringAssert.Contains("GuidePanelSize", layoutSource);
             StringAssert.Contains("FinalPanelSize", layoutSource);
@@ -325,14 +323,13 @@ namespace OilSafetyTrainer.Tests
             const string builderPath = "Assets/Editor/SafetyTrainerUiBuilder.cs";
             const string themePath = "Assets/Editor/SafetyTrainerUiTheme.cs";
 
-            Assert.True(File.Exists(themePath), "UI colors should live in a dedicated editor theme file.");
+            Assert.True(File.Exists(themePath));
 
             var builderSource = File.ReadAllText(builderPath);
             var themeSource = File.ReadAllText(themePath);
 
             StringAssert.Contains("SafetyTrainerUiTheme", builderSource);
             StringAssert.DoesNotContain("new Color(", builderSource);
-
             StringAssert.Contains("GuidePanel", themeSource);
             StringAssert.Contains("FinalPanel", themeSource);
             StringAssert.Contains("ResetButton", themeSource);
@@ -389,9 +386,9 @@ namespace OilSafetyTrainer.Tests
                 AssetDatabase.SaveAssetIfDirty(config);
 
                 var builderType = System.Type.GetType("OilSafetyTrainer.Editor.SafetyTrainerScenarioBuilder, OilSafetyTrainer.Editor");
-                Assert.NotNull(builderType, "Could not find SafetyTrainerScenarioBuilder editor type.");
+                Assert.NotNull(builderType);
                 var createScenarioConfig = builderType.GetMethod("CreateScenarioConfig");
-                Assert.NotNull(createScenarioConfig, "Could not find CreateScenarioConfig.");
+                Assert.NotNull(createScenarioConfig);
                 var loaded = (SafetyScenarioConfig)createScenarioConfig.Invoke(null, null);
 
                 Assert.AreEqual(1, loaded.RequiredPpe.Length);
@@ -439,9 +436,7 @@ namespace OilSafetyTrainer.Tests
                 .Distinct()
                 .ToArray();
 
-            Assert.IsEmpty(
-                blockingHits,
-                $"Player start view is obstructed by nearby geometry: {string.Join(", ", blockingHits)}");
+            Assert.IsEmpty(blockingHits, $"Player start view is obstructed by nearby geometry: {string.Join(", ", blockingHits)}");
         }
 
         [Test]
@@ -476,14 +471,8 @@ namespace OilSafetyTrainer.Tests
             var leftFenceBounds = leftFence.GetComponent<BoxCollider>().bounds;
             var rightFenceBounds = rightFence.GetComponent<BoxCollider>().bounds;
 
-            Assert.LessOrEqual(
-                gateBounds.min.x,
-                leftFenceBounds.max.x + 0.5f,
-                "The PPE gate leaves a bypass gap on the left side.");
-            Assert.GreaterOrEqual(
-                gateBounds.max.x,
-                rightFenceBounds.min.x - 0.5f,
-                "The PPE gate leaves a bypass gap on the right side.");
+            Assert.LessOrEqual(gateBounds.min.x, leftFenceBounds.max.x + 0.5f);
+            Assert.GreaterOrEqual(gateBounds.max.x, rightFenceBounds.min.x - 0.5f);
         }
 
         [Test]
@@ -495,8 +484,8 @@ namespace OilSafetyTrainer.Tests
             Assert.NotNull(guidePanel);
 
             var rect = guidePanel.GetComponent<RectTransform>();
-            Assert.LessOrEqual(rect.sizeDelta.x, 420f, "Guide panel is too wide for the first viewport.");
-            Assert.LessOrEqual(rect.sizeDelta.y, 220f, "Guide panel is too tall for the first viewport.");
+            Assert.LessOrEqual(rect.sizeDelta.x, 420f);
+            Assert.LessOrEqual(rect.sizeDelta.y, 220f);
         }
 
         [Test]
@@ -505,13 +494,10 @@ namespace OilSafetyTrainer.Tests
             EditorSceneManager.OpenScene("Assets/Scenes/OilSafetyTrainerDemo.unity");
 
             var canvasRect = GameObject.Find("Safety Trainer UI").GetComponent<RectTransform>();
-            AssertRectInsideParent(canvasRect, "Objective");
-            AssertRectInsideParent(canvasRect, "Checklist");
-            AssertRectInsideParent(canvasRect, "Score");
-            AssertRectInsideParent(canvasRect, "Prompt");
-            AssertRectInsideParent(canvasRect, "Message");
-            AssertRectInsideParent(canvasRect, "Guide Panel");
-            AssertRectInsideParent(canvasRect, "Final Panel");
+            foreach (var childName in new[] { "Objective", "Checklist", "Score", "Prompt", "Message", "Guide Panel", "Final Panel" })
+            {
+                AssertRectInsideParent(canvasRect, childName);
+            }
         }
 
         [Test]
@@ -546,6 +532,11 @@ namespace OilSafetyTrainer.Tests
             {
                 Assert.IsNull(label.GetComponent<Text>(), "Button labels should not keep legacy UnityEngine.UI.Text.");
             }
+
+            var finalStationLabel = GameObject.Find("Final Station Label");
+            Assert.NotNull(finalStationLabel);
+            Assert.NotNull(finalStationLabel.GetComponent<TextMeshPro>(), "World labels should use TextMeshPro.");
+            Assert.IsNull(finalStationLabel.GetComponent<TextMesh>(), "World labels should not use legacy TextMesh.");
         }
 
         [Test]
